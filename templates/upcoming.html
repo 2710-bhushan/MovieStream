@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+
+{% block title %}Upcoming Releases - {{ settings.site_name }}{% endblock %}
+
+{% block content %}
+<section class="max-w-7xl mx-auto px-6 py-10">
+    <div class="mb-10 text-center md:text-left">
+        <span class="text-purple-400 font-extrabold text-sm uppercase tracking-widest block mb-2"><i class="fa-solid fa-calendar-days mr-1"></i> Coming Attractions</span>
+        <h1 class="text-4xl md:text-5xl font-black text-white leading-tight">Upcoming Blockbusters</h1>
+        <p class="text-zinc-400 mt-2 max-w-xl">Be the first to know about upcoming cinematic releases. View official trailers, release dates, and cast lists.</p>
+    </div>
+
+    {% if upcoming %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        {% for movie in upcoming %}
+        <div class="glass-panel flex flex-col h-full overflow-hidden group hover:border-purple-500/30 transition-all duration-300 shadow-xl">
+            <!-- Poster Frame -->
+            <div class="relative overflow-hidden aspect-[2/3] bg-zinc-950">
+                <img src="{{ movie.poster_url or 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?auto=format&fit=crop&w=400&q=80' }}" alt="{{ movie.title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                
+                <!-- Overlay with Play Button on Hover -->
+                <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300">
+                    <button onclick="openTrailerModal('{{ movie.title }}', '{{ movie.trailer_url }}')" class="h-16 w-16 bg-purple-600 hover:bg-purple-500 hover:scale-110 text-white rounded-full flex items-center justify-center shadow-lg transition-all duration-200">
+                        <i class="fa-solid fa-play text-xl ml-1"></i>
+                    </button>
+                </div>
+
+                <!-- Release Date Tag -->
+                <div class="absolute bottom-3 left-3 bg-black/85 backdrop-blur-md text-purple-400 border border-purple-500/25 text-[10px] font-black uppercase px-2.5 py-1 rounded-md tracking-wider">
+                    <i class="fa-regular fa-clock mr-1"></i> Release: {{ movie.release_date }}
+                </div>
+            </div>
+
+            <!-- Content Card -->
+            <div class="p-5 flex-grow flex flex-col justify-between space-y-4">
+                <div class="space-y-2">
+                    <span class="text-[10px] text-zinc-500 uppercase tracking-wider font-bold block">{{ movie.genre or 'Sci-Fi, Action' }}</span>
+                    <h3 class="font-extrabold text-white text-lg tracking-tight truncate group-hover:text-purple-400 transition-colors duration-200">{{ movie.title }}</h3>
+                    <p class="text-xs text-zinc-400 line-clamp-3 leading-relaxed">{{ movie.description }}</p>
+                </div>
+
+                <div class="space-y-3 pt-3 border-t border-white/5">
+                    <div class="text-[11px] text-zinc-500">
+                        <strong class="text-zinc-400">Starring:</strong> {{ movie.cast or 'A.I. Model Stars' }}
+                    </div>
+
+                    <button onclick="openTrailerModal('{{ movie.title }}', '{{ movie.trailer_url }}')" class="w-full bg-zinc-900 hover:bg-purple-600 text-zinc-300 hover:text-white border border-white/5 hover:border-purple-500/20 text-xs font-bold py-2.5 rounded-lg flex items-center justify-center gap-2 transition duration-200">
+                        <i class="fa-solid fa-video"></i> Watch Official Trailer
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <!-- Empty State -->
+    <div class="glass-panel p-12 text-center max-w-xl mx-auto space-y-4 rounded-2xl">
+        <div class="h-16 w-16 bg-purple-600/10 border border-purple-500/20 rounded-full flex items-center justify-center mx-auto text-purple-400">
+            <i class="fa-solid fa-film text-2xl"></i>
+        </div>
+        <h3 class="text-xl font-bold text-white">No Upcoming Releases</h3>
+        <p class="text-zinc-400 text-sm">Check back soon! Our admins are constantly updating the roster with major blockbusters coming online.</p>
+    </div>
+    {% endif %}
+</section>
+
+<!-- TRAILER VIDEO LIGHTBOX MODAL -->
+<div id="trailer-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/90 backdrop-blur-md opacity-0 transition-opacity duration-300">
+    <div class="relative w-full max-w-4xl bg-zinc-950 border border-white/10 rounded-2xl overflow-hidden shadow-2xl scale-95 transform transition-transform duration-300" id="modal-container">
+        
+        <!-- Modal Header -->
+        <div class="flex justify-between items-center px-6 py-4 border-b border-white/5">
+            <h3 class="font-extrabold text-white text-base truncate" id="modal-title">Trailer</h3>
+            <button onclick="closeTrailerModal()" class="text-zinc-400 hover:text-white text-lg transition"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <!-- Video Player Frame -->
+        <div class="aspect-video w-full bg-black">
+            <iframe id="trailer-iframe" src="" class="w-full h-full" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function getYouTubeEmbedUrl(url) {
+        if (!url) return '';
+        // Extract video ID from standard watch link or short link
+        let regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+        let match = url.match(regExp);
+        if (match && match[2].length == 11) {
+            return "https://www.youtube.com/embed/" + match[2] + "?autoplay=1&rel=0";
+        }
+        // Fallback for embed URLs already formatted
+        if (url.includes('youtube.com/embed/')) {
+            if (!url.includes('autoplay=1')) {
+                url += (url.includes('?') ? '&' : '?') + 'autoplay=1&rel=0';
+            }
+            return url;
+        }
+        return url;
+    }
+
+    function openTrailerModal(title, trailerUrl) {
+        const modal = document.getElementById('trailer-modal');
+        const container = document.getElementById('modal-container');
+        const titleEl = document.getElementById('modal-title');
+        const iframe = document.getElementById('trailer-iframe');
+
+        titleEl.textContent = title + " - Official Trailer";
+        iframe.src = getYouTubeEmbedUrl(trailerUrl);
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            container.classList.remove('scale-95');
+            container.classList.add('scale-100');
+        }, 50);
+    }
+
+    function closeTrailerModal() {
+        const modal = document.getElementById('trailer-modal');
+        const container = document.getElementById('modal-container');
+        const iframe = document.getElementById('trailer-iframe');
+
+        modal.classList.add('opacity-0');
+        container.classList.remove('scale-100');
+        container.classList.add('scale-95');
+        
+        setTimeout(() => {
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+            iframe.src = ""; // Stop audio by emptying source
+        }, 300);
+    }
+
+    // Close modal on escape key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === "Escape") {
+            closeTrailerModal();
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Web Series Catalog - {{ settings.site_name }}{% endblock %}
+
+{% block content %}
+<section class="max-w-7xl mx-auto px-6 py-10">
+    <div class="mb-10 text-center md:text-left">
+        <span class="text-purple-400 font-extrabold text-sm uppercase tracking-widest block mb-2"><i class="fa-solid fa-rectangle-list mr-1"></i> Episodic Entertainment</span>
+        <h1 class="text-4xl md:text-5xl font-black text-white leading-tight">Web Series Catalog</h1>
+        <p class="text-zinc-400 mt-2 max-w-xl">Binge-watch premium original series, drama seasons, and episodic releases. Unlock access via subscription or individual purchase.</p>
+    </div>
+
+    {% if series %}
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+        {% for ws in series %}
+        <div class="glass-panel overflow-hidden group hover:border-purple-500/30 duration-300 transition flex flex-col justify-between h-full">
+            <div class="relative overflow-hidden aspect-[2/3] bg-zinc-950">
+                <img src="{{ ws.poster_url or 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?auto=format&fit=crop&w=400&q=80' }}" alt="{{ ws.title }}" class="w-full h-full object-cover group-hover:scale-105 duration-300 transition">
+                <div class="absolute top-2 right-2 flex flex-col gap-1">
+                    {% if ws.is_paid %}
+                    <span class="bg-purple-600 text-white text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded tracking-wide text-center shadow-lg">
+                        Premium
+                    </span>
+                    {% else %}
+                    <span class="bg-emerald-600 text-white text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded tracking-wide text-center shadow-lg">
+                        Free
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="p-4 space-y-3 flex-grow flex flex-col justify-between">
+                <div class="space-y-1">
+                    <span class="text-[10px] uppercase text-zinc-500 font-bold block">{{ ws.genre }}</span>
+                    <h3 class="font-bold text-white group-hover:text-purple-400 transition truncate text-sm">
+                        <a href="/webseries/{{ ws.id }}">{{ ws.title }}</a>
+                    </h3>
+                </div>
+                <div class="flex justify-between items-center text-xs pt-2 border-t border-white/5">
+                    <span class="text-zinc-500">By: {{ ws.director or 'A.I. Director' }}</span>
+                    {% if ws.is_paid %}
+                    <span class="text-purple-400 font-bold">₹{{ ws.price }}</span>
+                    {% else %}
+                    <span class="text-emerald-400 font-bold">Free Watch</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="glass-panel p-12 text-center max-w-xl mx-auto space-y-4 rounded-2xl">
+        <div class="h-16 w-16 bg-purple-600/10 border border-purple-500/20 rounded-full flex items-center justify-center mx-auto text-purple-400">
+            <i class="fa-solid fa-clapperboard text-2xl"></i>
+        </div>
+        <h3 class="text-xl font-bold text-white">No Web Series Available</h3>
+        <p class="text-zinc-400 text-sm">Check back later! Our admins are currently uploading premium seasons and series.</p>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

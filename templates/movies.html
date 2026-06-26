@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="max-w-7xl mx-auto px-6 py-8">
+    <!-- SEARCH & FILTER PANEL -->
+    <div class="glass-panel p-6 mb-8 space-y-6">
+        <h1 class="text-2xl font-black text-white">Search Movies Catalogue</h1>
+        
+        <form action="/movies" method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <!-- Text Search -->
+            <div class="relative md:col-span-2">
+                <input type="text" name="q" value="{{ query }}" placeholder="Search by title, actor, cast, director..." class="w-full bg-zinc-900/80 border border-white/5 rounded-xl pl-10 pr-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500/50">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-zinc-500"></i>
+            </div>
+            
+            <!-- Genre Filter -->
+            <select name="genre" class="bg-zinc-900/80 border border-white/5 rounded-xl px-4 py-3 text-sm text-zinc-300 focus:outline-none focus:border-purple-500/50">
+                <option value="">All Genres</option>
+                {% for g in genres %}
+                <option value="{{ g }}" {% if selected_genre == g %}selected{% endif %}>{{ g }}</option>
+                {% endfor %}
+            </select>
+
+            <!-- Price Type -->
+            <select name="price_type" class="bg-zinc-900/80 border border-white/5 rounded-xl px-4 py-3 text-sm text-zinc-300 focus:outline-none focus:border-purple-500/50">
+                <option value="">All Access Types</option>
+                <option value="free" {% if price_type == 'free' %}selected{% endif %}>Free Download Only</option>
+                <option value="paid" {% if price_type == 'paid' %}selected{% endif %}>Paid Premium Only</option>
+            </select>
+            
+            <!-- Submit buttons -->
+            <div class="md:col-span-4 flex justify-end gap-3 mt-2">
+                <a href="/movies" class="bg-zinc-800 hover:bg-zinc-700 text-white text-sm font-bold px-6 py-2.5 rounded-xl transition">
+                    Reset
+                </a>
+                <button type="submit" class="bg-purple-600 hover:bg-purple-500 text-white text-sm font-bold px-8 py-2.5 rounded-xl transition shadow-lg shadow-purple-600/20">
+                    Apply Filters
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- MOVIE CATALOG GRID -->
+    {% if movies %}
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+        {% for movie in movies %}
+        <div class="glass-panel overflow-hidden group hover:border-purple-500/30 duration-300 transition">
+            <div class="relative overflow-hidden aspect-[2/3]">
+                <img src="{{ movie.poster_url or 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?auto=format&fit=crop&w=400&q=80' }}" alt="{{ movie.title }}" class="w-full h-full object-cover group-hover:scale-105 duration-300 transition">
+                <div class="absolute top-2 right-2 flex flex-col gap-1">
+                    <span class="bg-black/70 backdrop-blur-md text-yellow-400 text-xs px-2 py-0.5 rounded font-bold">
+                        <i class="fa-solid fa-star text-[10px] mr-1"></i> {{ movie.imdb_rating }}
+                    </span>
+                    {% if movie.is_paid %}
+                    <span class="bg-purple-600 text-white text-[10px] font-extrabold uppercase px-2 py-0.5 rounded tracking-wide text-center">
+                        Premium
+                    </span>
+                    {% else %}
+                    <span class="bg-emerald-600 text-white text-[10px] font-extrabold uppercase px-2 py-0.5 rounded tracking-wide text-center">
+                        Free
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="p-4 space-y-1.5">
+                <span class="text-[10px] uppercase text-zinc-500 font-bold">{{ movie.genre }}</span>
+                <h3 class="font-bold text-white group-hover:text-purple-400 transition truncate"><a href="/movie/{{ movie.id }}">{{ movie.title }}</a></h3>
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-zinc-400">{{ movie.language }}</span>
+                    {% if movie.is_paid %}
+                    <span class="text-purple-400 font-bold">₹{{ movie.price }}</span>
+                    {% else %}
+                    <span class="text-emerald-400 font-bold">Download</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="glass-panel p-12 text-center text-zinc-400">
+        <i class="fa-solid fa-film text-4xl mb-4 text-zinc-600"></i>
+        <h3 class="font-bold text-white text-lg">No Movies Found</h3>
+        <p class="text-sm mt-1">Try resetting search filters or ask our AI chatbot for movie suggestions!</p>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

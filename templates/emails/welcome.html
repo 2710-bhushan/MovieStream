@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f5f7; color: #1e293b; margin: 0; padding: 20px; }
+        .container { max-width: 600px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0; margin: 20px auto; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); }
+        .header { background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; padding: 40px 30px; text-align: center; }
+        .logo { max-height: 48px; border-radius: 50%; margin-bottom: 16px; border: 2px solid rgba(255, 255, 255, 0.2); }
+        .content { padding: 30px 40px; }
+        h1 { margin: 0 0 10px 0; font-size: 24px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+        p { line-height: 1.6; font-size: 15px; margin: 0 0 20px 0; color: #475569; }
+        .btn { display: inline-block; background: linear-gradient(135deg, #1f80e0, #00c0f9); color: #ffffff !important; text-align: center; padding: 12px 30px; margin: 20px auto; border-radius: 9999px; font-weight: bold; text-decoration: none; text-transform: uppercase; font-size: 13px; letter-spacing: 0.5px; box-shadow: 0 4px 12px rgba(31, 128, 224, 0.3); }
+        .btn:hover { opacity: 0.9; }
+        .center-wrapper { text-align: center; }
+        .footer { background: #f8fafc; text-align: center; font-size: 12px; color: #64748b; padding: 20px 40px; border-top: 1px solid #f1f5f9; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="{{ logo_url }}" alt="{{ site_name }}" class="logo">
+            <h1>Welcome to {{ site_name }}</h1>
+        </div>
+        <div class="content">
+            <p>Hello <strong>{{ username }}</strong>,</p>
+            <p>Your email has been successfully verified! Welcome to the premium community of <strong>{{ site_name }}</strong>. You can now browse our catalog, download free content, stream unlimited music track lyrics, and purchase premium high-definition movies and web series.</p>
+            
+            <div class="center-wrapper">
+                <a href="{{ url_for('index', _external=True) }}" class="btn">Explore Platform</a>
+            </div>
+            
+            <p>If you have any questions or require support, don't hesitate to write to us or ask our AI chatbot located on the lower-right side of the website.</p>
+            <p>Best regards,<br><strong>The {{ site_name }} Team</strong></p>
+        </div>
+        <div class="footer">
+            &copy; 2026 {{ site_name }}. All rights reserved. Secure Portal.
+        </div>
+    </div>
+</body>
+</html>

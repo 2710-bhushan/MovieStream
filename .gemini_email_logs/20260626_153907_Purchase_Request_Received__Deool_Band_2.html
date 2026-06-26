@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f5f7; color: #1e293b; margin: 0; padding: 20px; }
+        .container { max-width: 600px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0; margin: 20px auto; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); }
+        .header { background: linear-gradient(135deg, #f59e0b, #d97706); color: #ffffff; padding: 40px 30px; text-align: center; }
+        .logo { max-height: 48px; border-radius: 50%; margin-bottom: 16px; border: 2px solid rgba(255, 255, 255, 0.2); }
+        .content { padding: 30px 40px; }
+        h1 { margin: 0 0 10px 0; font-size: 24px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+        p { line-height: 1.6; font-size: 15px; margin: 0 0 20px 0; color: #475569; }
+        .details-table { w-full: 100%; border-collapse: collapse; margin: 25px 0; font-size: 14px; text-align: left; }
+        .details-table th { background: #f8fafc; color: #64748b; padding: 12px; border: 1px solid #cbd5e1; }
+        .details-table td { padding: 12px; border: 1px solid #cbd5e1; color: #334155; }
+        .status-badge { background: #fef3c7; color: #d97706; padding: 4px 10px; border-radius: 9999px; font-size: 11px; font-weight: bold; border: 1px solid #fde68a; }
+        .footer { background: #f8fafc; text-align: center; font-size: 12px; color: #64748b; padding: 20px 40px; border-top: 1px solid #f1f5f9; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://images.unsplash.com/photo-1594909122845-11baa439b7bf?auto=format&amp;fit=crop&amp;w=80&amp;q=80" alt="" class="logo">
+            <h1>Purchase Request Received</h1>
+        </div>
+        <div class="content">
+            <p>Hello <strong>admin</strong>,</p>
+            <p>We have successfully received your payment verification request for <strong>Deool Band 2</strong>. Our administrators are currently matching the UTR number against bank records. Once verified, access to your content will be activated automatically.</p>
+            
+            <table class="details-table" style="width: 100%;">
+                <tr>
+                    <th style="width: 40%;">Item Ordered</th>
+                    <td>Deool Band 2</td>
+                </tr>
+                <tr>
+                    <th>Amount Paid</th>
+                    <td>₹149.0</td>
+                </tr>
+                <tr>
+                    <th>UTR Number</th>
+                    <td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">251242522222</code></td>
+                </tr>
+                <tr>
+                    <th>Transaction ID</th>
+                    <td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">TXN-873CCEB1E286</code></td>
+                </tr>
+                <tr>
+                    <th>Status</th>
+                    <td><span class="status-badge">Pending Verification</span></td>
+                </tr>
+            </table>
+            
+            <p>Verification usually takes between 15 minutes to a few hours depending on the bank network. You will receive another notification once approved.</p>
+            <p>Best regards,<br><strong>The  Team</strong></p>
+        </div>
+        <div class="footer">
+            &copy; 2026 . All rights reserved. Secure Portal.
+        </div>
+    </div>
+</body>
+</html>

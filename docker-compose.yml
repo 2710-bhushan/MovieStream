@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+    environment:
+      - SECRET_KEY=antigravity_docker_prod_secret_key_192847391
+      - EMAIL_HOST=smtp.gmail.com
+      - EMAIL_PORT=587
+      - EMAIL_HOST_USER=bhushan.272006@gmail.com
+      - EMAIL_HOST_PASSWORD=gpkh pcco zwmw dyxp
+      - DEFAULT_FROM_EMAIL=ServiceHub <bhushan.272006@gmail.com>
+    restart: always

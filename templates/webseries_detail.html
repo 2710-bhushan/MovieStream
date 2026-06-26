@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ series.title }} - {{ settings.site_name }}{% endblock %}
+
+{% block content %}
+<section class="max-w-7xl mx-auto px-6 py-10">
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-2 text-xs text-zinc-500 mb-8">
+        <a href="/" class="hover:text-white transition">Home</a>
+        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+        <a href="/webseries" class="hover:text-white transition">Web Series</a>
+        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+        <span class="text-zinc-300 font-bold truncate">{{ series.title }}</span>
+    </div>
+
+    <!-- Hero details panel -->
+    <div class="glass-panel p-6 md:p-8 flex flex-col md:flex-row gap-8 mb-12 shadow-2xl relative overflow-hidden">
+        <div class="absolute -right-24 -top-24 h-64 w-64 bg-purple-600/10 rounded-full blur-3xl"></div>
+        
+        <!-- Poster image -->
+        <div class="w-full md:w-80 shrink-0 aspect-[2/3] rounded-xl overflow-hidden bg-zinc-950 shadow-lg border border-white/5">
+            <img src="{{ series.poster_url or 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?auto=format&fit=crop&w=400&q=80' }}" alt="{{ series.title }}" class="w-full h-full object-cover">
+        </div>
+
+        <!-- Series Info -->
+        <div class="flex-grow flex flex-col justify-between space-y-6">
+            <div class="space-y-4">
+                <div class="flex flex-wrap items-center gap-3">
+                    <span class="bg-purple-600/20 text-purple-400 border border-purple-500/25 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">{{ series.genre or 'Drama' }}</span>
+                    <span class="text-zinc-500 text-xs">Released: {{ series.release_date or '2026' }}</span>
+                    {% if series.is_paid %}
+                    <span class="bg-purple-600 text-white text-[10px] font-black uppercase px-2.5 py-0.5 rounded tracking-wide">Premium</span>
+                    {% else %}
+                    <span class="bg-emerald-600 text-white text-[10px] font-black uppercase px-2.5 py-0.5 rounded tracking-wide">Free Access</span>
+                    {% endif %}
+                </div>
+
+                <h1 class="text-3xl md:text-5xl font-black text-white tracking-tight leading-none">{{ series.title }}</h1>
+                
+                <p class="text-zinc-300 leading-relaxed text-sm max-w-2xl">{{ series.description }}</p>
+
+                <div class="grid grid-cols-2 gap-4 text-xs pt-4 border-t border-white/5 max-w-md">
+                    <div>
+                        <span class="text-zinc-500 block">Director</span>
+                        <strong class="text-white text-sm font-semibold mt-0.5 block">{{ series.director or 'A.I. Director' }}</strong>
+                    </div>
+                    <div>
+                        <span class="text-zinc-500 block">Cast</span>
+                        <strong class="text-white text-sm font-semibold mt-0.5 block">{{ series.cast or 'Various Stars' }}</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Access Control Box -->
+            <div class="p-5 bg-black/40 border border-white/5 rounded-xl max-w-xl">
+                {% if has_purchased %}
+                <div class="flex items-center gap-3.5 text-emerald-400">
+                    <div class="h-10 w-10 bg-emerald-600/20 border border-emerald-500/30 rounded-lg flex items-center justify-center">
+                        <i class="fa-solid fa-circle-check text-lg"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-extrabold text-sm text-white">Access Granted</h4>
+                        <p class="text-xs text-zinc-400">Your account is authorized to watch all episodes of this web series.</p>
+                    </div>
+                </div>
+                {% else %}
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div class="space-y-1">
+                        <span class="text-[10px] text-purple-400 font-extrabold uppercase tracking-wider block">Binge Pass Required</span>
+                        <h4 class="font-extrabold text-sm text-white">Unlock All Episodes for ₹{{ series.price | int }}</h4>
+                        <p class="text-xs text-zinc-500">Or subscribe to a platform membership for unlimited site-wide access.</p>
+                    </div>
+                    <a href="/checkout/webseries/{{ series.id }}" class="bg-purple-600 hover:bg-purple-500 text-white font-extrabold text-xs px-6 py-3 rounded-xl uppercase tracking-wider transition shadow-lg shadow-purple-600/20">
+                        Buy Access Pass
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Episodes lists grouped by seasons -->
+    <div class="space-y-8">
+        <div class="border-b border-white/5 pb-4 flex justify-between items-center">
+            <h2 class="text-2xl font-black text-white">Seasons & Episodes</h2>
+            <div class="text-xs text-zinc-500">Total episodes: {{ series.episodes|length }}</div>
+        </div>
+
+        {% if seasons %}
+            {% for season, episodes in seasons.items()|sort %}
+            <div class="glass-panel p-6 space-y-4 rounded-2xl border-white/5">
+                <h3 class="font-black text-white text-lg flex items-center gap-2">
+                    <span class="h-2 w-2 rounded-full bg-purple-500"></span> Season {{ season }}
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {% for ep in episodes|sort(attribute='episode_number') %}
+                    <div class="flex gap-4 p-3 bg-black/20 hover:bg-black/40 border border-white/5 rounded-xl transition duration-300 relative group">
+                        <!-- Episode cover frame -->
+                        <div class="h-24 w-36 shrink-0 bg-zinc-900 rounded-lg overflow-hidden border border-white/5 relative">
+                            <img src="{{ ep.cover_url or 'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=300&q=80' }}" alt="Ep cover" class="w-full h-full object-cover">
+                            
+                            <!-- Locked overlay if no permission -->
+                            {% if not has_purchased and series.is_paid %}
+                            <div class="absolute inset-0 bg-black/60 flex items-center justify-center text-zinc-400">
+                                <i class="fa-solid fa-lock text-sm"></i>
+                            </div>
+                            {% else %}
+                            <a href="/webseries/episode/{{ ep.id }}" class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-200">
+                                <div class="h-8 w-8 rounded-full bg-purple-600 text-white flex items-center justify-center shadow"><i class="fa-solid fa-play text-xs ml-0.5"></i></div>
+                            </a>
+                            {% endif %}
+                        </div>
+
+                        <!-- Episode Content Info -->
+                        <div class="flex-grow min-w-0 flex flex-col justify-between py-1">
+                            <div>
+                                <span class="text-[10px] text-purple-400 font-extrabold uppercase tracking-wider block">Episode {{ ep.episode_number }}</span>
+                                <h4 class="font-bold text-white text-sm truncate mt-0.5">
+                                    {% if has_purchased or not series.is_paid %}
+                                    <a href="/webseries/episode/{{ ep.id }}" class="hover:text-purple-400 transition">{{ ep.title }}</a>
+                                    {% else %}
+                                    <span class="text-zinc-500">{{ ep.title }}</span>
+                                    {% endif %}
+                                </h4>
+                            </div>
+                            <div class="flex justify-between items-center text-[10px] text-zinc-500">
+                                <span><i class="fa-regular fa-clock mr-1"></i> {{ ep.duration or '25m' }}</span>
+                                {% if not has_purchased and series.is_paid %}
+                                <span class="text-red-400 font-bold uppercase"><i class="fa-solid fa-lock text-[9px] mr-1"></i> Locked</span>
+                                {% else %}
+                                <span class="text-green-400 font-bold uppercase"><i class="fa-solid fa-lock-open text-[9px] mr-1"></i> Ready</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <!-- Empty state -->
+            <div class="glass-panel p-8 text-center max-w-md mx-auto space-y-3 rounded-xl border-dashed">
+                <i class="fa-solid fa-clapperboard text-zinc-500 text-2xl"></i>
+                <h4 class="text-white font-bold text-sm">Episodes List Empty</h4>
+                <p class="text-zinc-500 text-xs">No episodes have been uploaded to this season catalog yet.</p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

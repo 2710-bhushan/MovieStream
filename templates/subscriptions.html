@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+
+{% block title %}Membership Plans - {{ settings.site_name }}{% endblock %}
+
+{% block content %}
+<section class="max-w-7xl mx-auto px-6 py-12">
+    <div class="text-center max-w-2xl mx-auto mb-16 space-y-4">
+        <span class="bg-purple-600/20 text-purple-400 border border-purple-500/25 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest inline-block">{{ settings.site_name }} VIP</span>
+        <h1 class="text-4xl md:text-5xl font-black text-white tracking-tight leading-none">Unlimited Access Pass</h1>
+        <p class="text-zinc-400 text-base">Unlock the complete entertainment portal. Stream high-fidelity FLAC audio, view exclusive web series, and download movies in 4K resolution without ad interruptions.</p>
+    </div>
+
+    <!-- Active Subscription Status Banner -->
+    {% if active_sub %}
+    <div class="glass-panel p-6 border-emerald-500/25 bg-gradient-to-r from-emerald-950/20 via-zinc-900 to-emerald-950/20 rounded-2xl max-w-3xl mx-auto mb-16 flex flex-col md:flex-row justify-between items-center gap-6 shadow-xl">
+        <div class="flex items-center gap-4">
+            <div class="h-12 w-12 bg-emerald-600/20 border border-emerald-500/30 rounded-xl flex items-center justify-center text-emerald-400">
+                <i class="fa-solid fa-crown text-xl"></i>
+            </div>
+            <div>
+                <span class="bg-emerald-600/25 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wide">Active Subscription</span>
+                <h3 class="font-extrabold text-white text-lg mt-0.5">{{ active_sub.plan.name }}</h3>
+                <p class="text-xs text-zinc-400">Granted full platform downloading and streaming privileges.</p>
+            </div>
+        </div>
+        <div class="text-center md:text-right">
+            <span class="text-zinc-500 text-xs block">Expires On</span>
+            <span class="font-mono text-white font-bold text-sm bg-black/30 border border-white/5 px-3 py-1.5 rounded-lg inline-block mt-1">
+                {{ active_sub.end_date.strftime('%Y-%m-%d %H:%M') }}
+            </span>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Plans Cards Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-16">
+        {% for plan in plans %}
+        <div class="glass-panel relative flex flex-col justify-between p-8 rounded-2xl border-white/5 hover:border-purple-500/30 transition duration-300 {% if plan.duration_months == 3 or 'Premium' in plan.name %}border-purple-500/40 bg-gradient-to-b from-purple-950/10 to-transparent shadow-xl shadow-purple-600/5{% endif %}">
+            
+            {% if plan.duration_months == 3 or 'Premium' in plan.name %}
+            <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black text-[9px] uppercase px-3.5 py-1 rounded-full border border-purple-400/20 tracking-wider">
+                Most Popular
+            </div>
+            {% endif %}
+
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-xl font-extrabold text-white tracking-tight">{{ plan.name }}</h3>
+                    <p class="text-xs text-zinc-500 mt-1">Access duration: {{ plan.duration_months }} Month{{ 's' if plan.duration_months > 1 else '' }}</p>
+                </div>
+
+                <div class="flex items-baseline gap-1">
+                    <span class="text-4xl font-black text-white">₹{{ plan.price | int }}</span>
+                    <span class="text-zinc-500 text-sm">/ total</span>
+                </div>
+
+                <p class="text-sm text-zinc-400 leading-relaxed">{{ plan.description }}</p>
+
+                <!-- Features list -->
+                <ul class="space-y-3 pt-6 border-t border-white/5 text-xs text-zinc-300">
+                    <li class="flex items-center gap-2.5">
+                        <i class="fa-solid fa-circle-check text-purple-400"></i> Unlimited Movie Downloads
+                    </li>
+                    <li class="flex items-center gap-2.5">
+                        <i class="fa-solid fa-circle-check text-purple-400"></i> Full HD & 4K Resolution
+                    </li>
+                    <li class="flex items-center gap-2.5">
+                        <i class="fa-solid fa-circle-check text-purple-400"></i> Web Series Episodes Access
+                    </li>
+                    <li class="flex items-center gap-2.5">
+                        <i class="fa-solid fa-circle-check text-purple-400"></i> 320kbps & FLAC Music Audio
+                    </li>
+                    <li class="flex items-center gap-2.5">
+                        <i class="fa-solid fa-circle-check text-purple-400"></i> No Ad Break Interruptions
+                    </li>
+                </ul>
+            </div>
+
+            <div class="mt-8">
+                {% if active_sub and active_sub.plan_id == plan.id %}
+                <button class="w-full bg-emerald-600/25 border border-emerald-500/20 text-emerald-400 font-extrabold py-3.5 rounded-xl text-xs uppercase cursor-default" disabled>
+                    Current Plan Active
+                </button>
+                {% else %}
+                <a href="/checkout/plan/{{ plan.id }}" class="w-full text-center font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider block transition duration-200 {% if plan.duration_months == 3 or 'Premium' in plan.name %}bg-purple-600 hover:bg-purple-500 text-white shadow-lg shadow-purple-600/20{% else %}bg-zinc-900 hover:bg-zinc-800 text-white border border-white/5{% endif %}">
+                    Purchase Plan Pass
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- COMPARISON TABLE SECTION -->
+    <div class="max-w-4xl mx-auto mt-16 space-y-6">
+        <h2 class="text-xl md:text-2xl font-black text-white text-center">Compare Plan Features</h2>
+        <div class="glass-panel overflow-hidden border border-white/5 rounded-2xl shadow-xl">
+            <table class="w-full text-left text-xs md:text-sm text-zinc-300">
+                <thead>
+                    <tr class="bg-black/40 border-b border-white/5 text-white">
+                        <th class="p-4 font-bold">Features</th>
+                        <th class="p-4 font-bold text-center">Mobile</th>
+                        <th class="p-4 font-bold text-center">Super</th>
+                        <th class="p-4 font-bold text-center">Premium</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5">
+                    <tr>
+                        <td class="p-4 font-semibold text-white">Ad-Free Playback</td>
+                        <td class="p-4 text-center text-zinc-500">Ad-supported</td>
+                        <td class="p-4 text-center text-zinc-500">Ad-supported</td>
+                        <td class="p-4 text-center text-emerald-400"><i class="fa-solid fa-circle-check"></i> Full Ad-Free</td>
+                    </tr>
+                    <tr>
+                        <td class="p-4 font-semibold text-white">Simultaneous Screens</td>
+                        <td class="p-4 text-center">1 Mobile Screen</td>
+                        <td class="p-4 text-center">2 Screens</td>
+                        <td class="p-4 text-center text-white font-bold">4 Screens</td>
+                    </tr>
+                    <tr>
+                        <td class="p-4 font-semibold text-white">Video Quality Support</td>
+                        <td class="p-4 text-center text-zinc-400">HD (720p)</td>
+                        <td class="p-4 text-center text-zinc-300">Full HD (1080p)</td>
+                        <td class="p-4 text-center text-purple-400 font-bold">4K Ultra HD</td>
+                    </tr>
+                    <tr>
+                        <td class="p-4 font-semibold text-white">Sound Output Quality</td>
+                        <td class="p-4 text-center">Stereo 2.0</td>
+                        <td class="p-4 text-center">Dolby 5.1</td>
+                        <td class="p-4 text-center text-white font-bold">Dolby Atmos / 5.1</td>
+                    </tr>
+                    <tr>
+                        <td class="p-4 font-semibold text-white">Supported Devices</td>
+                        <td class="p-4 text-center">Mobile & Tablet</td>
+                        <td class="p-4 text-center">TV, Web, Mobile</td>
+                        <td class="p-4 text-center text-white font-bold">All Devices Supported</td>
+                    </tr>
+                    <tr>
+                        <td class="p-4 font-semibold text-white">Unlimited Offline Downloads</td>
+                        <td class="p-4 text-center text-zinc-500"><i class="fa-solid fa-circle-xmark"></i></td>
+                        <td class="p-4 text-center text-zinc-500"><i class="fa-solid fa-circle-xmark"></i></td>
+                        <td class="p-4 text-center text-emerald-400"><i class="fa-solid fa-circle-check"></i></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="max-w-3xl mx-auto px-6 py-12">
+    <div class="glass-panel p-8 space-y-8">
+        
+        <div class="text-center space-y-2">
+            <span class="bg-purple-600/30 text-purple-400 border border-purple-500/20 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Premium Billing Gateway</span>
+            <h1 class="text-3xl font-black text-white">Purchase Premium Access</h1>
+            <p class="text-zinc-400 text-sm">Review your transaction details and complete the UPI payment transfer below.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center border-t border-white/5 pt-8">
+            <!-- QR code instructions -->
+            <div class="space-y-6 text-center md:text-left">
+                <div class="space-y-1">
+                    <span class="text-zinc-500 text-xs uppercase block">Item to Unlock</span>
+                    <h3 class="font-extrabold text-white text-lg">{{ item_name }}</h3>
+                </div>
+                <div class="space-y-1">
+                    <span class="text-zinc-500 text-xs uppercase block">Total Amount Due</span>
+                    <h2 class="text-3xl font-black text-purple-400">₹{{ amount }}</h2>
+                </div>
+
+                <div class="bg-purple-950/20 border border-purple-500/10 p-4 rounded-xl space-y-3">
+                    <span class="font-bold text-xs text-white uppercase block">Verification Instructions:</span>
+                    <ol class="list-decimal list-inside text-xs text-zinc-300 space-y-2 leading-relaxed">
+                        <li>Scan the QR code with any UPI app (GPay, PhonePe, Paytm).</li>
+                        <li>Complete the payment transaction of <strong>₹{{ amount }}</strong>.</li>
+                        <li>Copy the <strong>12-digit UTR Number</strong> from your payment history.</li>
+                        <li>Enter the UTR below and submit your request.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Dynamic Neon QR Code Card -->
+            <div class="flex flex-col items-center justify-center p-6 bg-zinc-950 rounded-xl border border-white/5 space-y-4">
+                <div class="relative p-4 bg-white rounded-lg flex items-center justify-center border-4 border-purple-500 shadow-xl shadow-purple-600/20">
+                    {% if settings.payment_qr_url %}
+                    <img src="{{ settings.payment_qr_url }}" alt="Payment QR Code" class="h-44 w-44 object-contain">
+                    {% else %}
+                    <svg class="h-44 w-44" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Custom styled QR mockup -->
+                        <rect width="100" height="100" fill="white"/>
+                        <!-- Top Left corner marker -->
+                        <rect x="5" y="5" width="20" height="20" fill="black"/>
+                        <rect x="8" y="8" width="14" height="14" fill="white"/>
+                        <rect x="11" y="11" width="8" height="8" fill="black"/>
+                        <!-- Top Right corner marker -->
+                        <rect x="75" y="5" width="20" height="20" fill="black"/>
+                        <rect x="78" y="8" width="14" height="14" fill="white"/>
+                        <rect x="81" y="81" width="8" height="8" fill="black"/>
+                        <!-- Bottom Left corner marker -->
+                        <rect x="5" y="75" width="20" height="20" fill="black"/>
+                        <rect x="8" y="78" width="14" height="14" fill="white"/>
+                        <rect x="11" y="81" width="8" height="8" fill="black"/>
+                        <!-- Random bits mock -->
+                        <rect x="75" y="75" width="20" height="20" fill="black"/>
+                        <rect x="78" y="78" width="14" height="14" fill="white"/>
+                        <rect x="35" y="10" width="10" height="5" fill="black"/>
+                        <rect x="35" y="25" width="15" height="10" fill="black"/>
+                        <rect x="10" y="35" width="20" height="15" fill="black"/>
+                        <rect x="40" y="50" width="20" height="20" fill="black"/>
+                        <rect x="65" y="30" width="30" height="10" fill="black"/>
+                        <rect x="70" y="50" width="10" height="15" fill="black"/>
+                        <!-- Center Brand Box -->
+                        <rect x="40" y="40" width="20" height="20" fill="purple"/>
+                        <text x="50" y="53" font-size="7" font-weight="bold" fill="white" text-anchor="middle">UPI</text>
+                    </svg>
+                    {% endif %}
+                </div>
+                <div class="text-center">
+                    <span class="text-xs text-zinc-500 font-mono block">UPI ID: {{ settings.upi_id or 'pay@streamvibe' }}</span>
+                    <span class="text-[10px] text-zinc-400">Scan & pay with any UPI App</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- FORM ENTRY PANEL -->
+        <form action="/checkout/{{ item_type }}/{% if item_type == 'movie' %}{{ movie.id }}{% elif item_type == 'song' %}{{ song.id }}{% elif item_type == 'webseries' %}{{ webseries.id }}{% else %}{{ plan.id }}{% endif %}" method="POST" class="space-y-6 border-t border-white/5 pt-8" id="payment-form">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- User name -->
+                <div>
+                    <label class="text-xs text-zinc-400 block mb-1.5 font-bold">Your Full Name</label>
+                    <input type="text" name="name" value="{{ user.username }}" class="w-full bg-zinc-900 border border-white/5 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500" required>
+                </div>
+
+                <!-- Email -->
+                <div>
+                    <label class="text-xs text-zinc-400 block mb-1.5 font-bold">Email Address (For access delivery)</label>
+                    <input type="email" name="email" value="{{ user.email }}" class="w-full bg-zinc-900 border border-white/5 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500" required>
+                </div>
+
+                <!-- Mobile Phone -->
+                <div>
+                    <label class="text-xs text-zinc-400 block mb-1.5 font-bold">Mobile Number</label>
+                    <input type="text" name="phone" value="{{ user.phone or '' }}" placeholder="Enter 10-digit number" class="w-full bg-zinc-900 border border-white/5 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500" required>
+                </div>
+
+                <!-- UTR Number (must be exactly 12-char numeric or alphanumeric) -->
+                <div>
+                    <label class="text-xs text-zinc-400 block mb-1.5 font-bold flex justify-between">
+                        <span>12-Digit UTR Number (Transaction ID)</span>
+                        <span class="text-red-500 text-[10px]" id="utr-error"></span>
+                    </label>
+                    <input type="text" name="utr_number" id="utr_input" maxlength="12" placeholder="e.g. 192837465012" class="w-full bg-zinc-900 border border-white/5 rounded-xl px-4 py-2.5 text-sm text-white font-mono focus:outline-none focus:border-purple-500" required>
+                </div>
+            </div>
+
+            <!-- Submit trigger -->
+            <div class="flex justify-end pt-4">
+                <button type="submit" id="submit-btn" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold px-10 py-3 rounded-full transition shadow-lg shadow-purple-600/30">
+                    Verify UTR & Complete Purchase
+                </button>
+            </div>
+        </form>
+
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const utrInput = document.getElementById('utr_input');
+    const utrError = document.getElementById('utr_error');
+    const form = document.getElementById('payment-form');
+
+    // UTR client-side checking
+    utrInput.addEventListener('input', () => {
+        const val = utrInput.value.trim();
+        const regex = /^[a-zA-Z0-9]{12}$/;
+        
+        if (val.length === 0) {
+            utrError.innerText = '';
+        } else if (val.length < 12) {
+            utrError.innerText = `Needs ${12 - val.length} more characters`;
+        } else if (!regex.test(val)) {
+            utrError.innerText = 'Only alphanumeric characters allowed';
+        } else {
+            utrError.innerText = '';
+        }
+    });
+
+    form.addEventListener('submit', (e) => {
+        const val = utrInput.value.trim();
+        const regex = /^[a-zA-Z0-9]{12}$/;
+        
+        if (!regex.test(val)) {
+            e.preventDefault();
+            utrError.innerText = 'Invalid UTR format. Must be exactly 12 alphanumeric digits.';
+            utrInput.focus();
+        }
+    });
+</script>
+{% endblock %}

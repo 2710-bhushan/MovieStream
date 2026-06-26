@@ -1,0 +1,347 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="max-w-7xl mx-auto px-6 py-8">
+    <!-- BACKDROP HEADER INFO -->
+    <div class="relative rounded-2xl overflow-hidden mb-8 border border-white/5 bg-zinc-950">
+        <div class="absolute inset-0 bg-cover bg-center opacity-20 filter blur-lg" style="background-image: url('{{ movie.poster_url }}');"></div>
+        <div class="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/70 to-transparent"></div>
+        
+        <div class="relative z-10 p-6 md:p-12 flex flex-col md:flex-row gap-8 items-start">
+            <!-- Poster -->
+            <img src="{{ movie.poster_url or 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?auto=format&fit=crop&w=400&q=80' }}" alt="{{ movie.title }}" class="w-full md:w-64 rounded-xl shadow-2xl border border-white/10 aspect-[2/3] object-cover">
+            
+            <!-- Metadata details -->
+            <div class="flex-grow space-y-4">
+                <div class="flex items-center gap-3">
+                    <span class="bg-purple-600/30 text-purple-400 border border-purple-500/20 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                        {{ movie.genre.split(',')[0] if movie.genre else 'Movie' }}
+                    </span>
+                    <span class="text-zinc-400 text-sm"><i class="fa-solid fa-calendar mr-1"></i> {{ movie.release_date }}</span>
+                </div>
+                
+                <h1 class="text-4xl md:text-5xl font-black text-white leading-tight">{{ movie.title }}</h1>
+                
+                <div class="flex flex-wrap items-center gap-6 text-sm text-zinc-300">
+                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-star text-yellow-500"></i> <strong class="text-white">{{ movie.imdb_rating }}</strong>/10 IMDB</span>
+                    <span class="h-1.5 w-1.5 rounded-full bg-zinc-600"></span>
+                    <span><i class="fa-solid fa-language mr-1.5"></i> {{ movie.language }}</span>
+                    <span class="h-1.5 w-1.5 rounded-full bg-zinc-600"></span>
+                    <span><i class="fa-solid fa-video mr-1.5"></i> {{ movie.quality_options }}</span>
+                </div>
+
+                <p class="text-zinc-300 text-sm md:text-base max-w-3xl leading-relaxed">
+                    {{ movie.description }}
+                </p>
+
+                <!-- Actions: Wishlist and Checkout/Download -->
+                <div class="pt-4 flex flex-wrap gap-4 items-center">
+                    {% if movie.is_paid %}
+                        {% if has_purchased %}
+                        <a href="/download/request/movie/{{ movie.id }}" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold px-8 py-3 rounded-full shadow-lg shadow-emerald-600/30 transition hover:scale-105 flex items-center gap-2">
+                            <i class="fa-solid fa-cloud-arrow-down"></i> Secure Premium Download
+                        </a>
+                        {% else %}
+                        <a href="/checkout/movie/{{ movie.id }}" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold px-8 py-3 rounded-full shadow-lg shadow-purple-600/30 transition hover:scale-105 flex items-center gap-2">
+                            <i class="fa-solid fa-lock"></i> Buy Movie Access for ₹{{ movie.price }}
+                        </a>
+                        {% endif %}
+                    {% else %}
+                    <a href="/download/request/movie/{{ movie.id }}" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold px-8 py-3 rounded-full shadow-lg shadow-purple-600/30 transition hover:scale-105 flex items-center gap-2">
+                        <i class="fa-solid fa-cloud-arrow-down"></i> Download Free Link
+                    </a>
+                    {% endif %}
+
+                    <!-- Wishlist Toggle Button -->
+                    <button onclick="toggleWishlist('movie', {{ movie.id }}, this)" class="bg-zinc-900 hover:bg-zinc-800 border border-white/10 text-white font-semibold px-6 py-3 rounded-full transition flex items-center gap-2">
+                        <i class="fa-regular fa-heart"></i> Watch Later
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN BODY GRID -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Main Details (Left/Center Column) -->
+        <div class="lg:col-span-2 space-y-8">
+            
+            <!-- TRAILER BLOCK -->
+            {% if movie.trailer_url %}
+            <div class="glass-panel p-6 space-y-4">
+                <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-circle-play text-purple-400"></i> Official Trailer
+                </h2>
+                <div class="relative aspect-video rounded-xl overflow-hidden border border-white/5">
+                    <iframe src="{{ movie.trailer_url }}" class="absolute inset-0 w-full h-full" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- DOWNLOAD SERVERS BOX -->
+            {% if not movie.is_paid or has_purchased %}
+            <div class="glass-panel p-6 space-y-4 bg-gradient-to-r from-purple-950/5 via-zinc-900/40 to-indigo-950/5">
+                <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-cloud-arrow-down text-purple-400"></i> Premium Download Links
+                </h2>
+                <p class="text-xs text-zinc-400">Direct CDN high-speed downloads. Choose your preferred quality below.</p>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {% if movie.link_480p %}
+                    <div class="bg-zinc-900/60 border border-white/5 rounded-xl p-4 flex justify-between items-center hover:border-purple-500/20 hover:scale-[1.02] duration-200 transition">
+                        <div>
+                            <span class="font-bold text-sm text-white block"><i class="fa-solid fa-file-video text-zinc-500 mr-1.5"></i> Standard Quality (480p)</span>
+                            <span class="text-[10px] text-zinc-500">Est. Size: ~450 MB | CDN Speed: Uncapped</span>
+                        </div>
+                        <a href="/download/request/movie/{{ movie.id }}?quality=480p" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-4 py-2.5 rounded-lg transition shadow-md shadow-purple-950/30">
+                            Download
+                        </a>
+                    </div>
+                    {% endif %}
+                    
+                    {% if movie.link_720p %}
+                    <div class="bg-zinc-900/60 border border-white/5 rounded-xl p-4 flex justify-between items-center hover:border-purple-500/20 hover:scale-[1.02] duration-200 transition">
+                        <div>
+                            <span class="font-bold text-sm text-white block"><i class="fa-solid fa-file-video text-purple-400/85 mr-1.5"></i> High Definition (720p)</span>
+                            <span class="text-[10px] text-zinc-500">Est. Size: ~950 MB | CDN Speed: Uncapped</span>
+                        </div>
+                        <a href="/download/request/movie/{{ movie.id }}?quality=720p" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-4 py-2.5 rounded-lg transition shadow-md shadow-purple-950/30">
+                            Download
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    {% if movie.link_1080p %}
+                    <div class="bg-zinc-900/60 border border-white/5 rounded-xl p-4 flex justify-between items-center hover:border-purple-500/20 hover:scale-[1.02] duration-200 transition">
+                        <div>
+                            <span class="font-bold text-sm text-white block"><i class="fa-solid fa-file-video text-purple-400 mr-1.5"></i> Full HD (1080p)</span>
+                            <span class="text-[10px] text-zinc-500">Est. Size: ~2.2 GB | CDN Speed: Uncapped</span>
+                        </div>
+                        <a href="/download/request/movie/{{ movie.id }}?quality=1080p" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-4 py-2.5 rounded-lg transition shadow-md shadow-purple-950/30">
+                            Download
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    {% if movie.link_4k %}
+                    <div class="bg-zinc-900/60 border border-white/5 rounded-xl p-4 flex justify-between items-center hover:border-purple-500/20 hover:scale-[1.02] duration-200 transition">
+                        <div>
+                            <span class="font-bold text-sm text-white block"><i class="fa-solid fa-file-video text-amber-500 mr-1.5 text-glow animate-pulse"></i> Ultra HD (4K)</span>
+                            <span class="text-[10px] text-zinc-500">Est. Size: ~7.4 GB | CDN Speed: Uncapped</span>
+                        </div>
+                        <a href="/download/request/movie/{{ movie.id }}?quality=4k" class="bg-gradient-to-r from-amber-600 to-yellow-500 hover:from-amber-500 hover:to-yellow-400 text-black font-extrabold px-4 py-2.5 rounded-lg transition shadow-md shadow-amber-950/30">
+                            Download
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    {% if not movie.link_480p and not movie.link_720p and not movie.link_1080p and not movie.link_4k %}
+                    <div class="bg-zinc-900/60 border border-white/5 rounded-xl p-4 flex justify-between items-center hover:border-purple-500/20 transition w-full col-span-2">
+                        <div class="flex items-center gap-3">
+                            <div class="h-10 w-10 bg-purple-600/10 border border-purple-500/20 rounded-lg flex items-center justify-center text-purple-400">
+                                <i class="fa-solid fa-server"></i>
+                            </div>
+                            <div>
+                                <span class="font-bold text-sm text-white block">Default CDN High Speed Server</span>
+                                <span class="text-[10px] text-zinc-500">Direct download fallback stream</span>
+                            </div>
+                        </div>
+                        <a href="/download/request/movie/{{ movie.id }}" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-5 py-2.5 rounded-lg transition shadow-md shadow-purple-950/30">
+                            Download Movie File
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                {% if movie.subtitle_url %}
+                <div class="border-t border-white/5 pt-4 mt-4 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="h-10 w-10 bg-zinc-800 border border-white/5 rounded-lg flex items-center justify-center text-zinc-400">
+                            <i class="fa-regular fa-closed-captioning text-lg"></i>
+                        </div>
+                        <div>
+                            <span class="font-semibold text-sm text-white block">Subtitles Available</span>
+                            <span class="text-[10px] text-zinc-400">Multilingual SRT/VTT format</span>
+                        </div>
+                    </div>
+                    <a href="{{ movie.subtitle_url }}" class="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-bold px-4 py-2.5 rounded-lg transition" download>
+                        Download SRT
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- SCREENSHOTS IMAGE GALLERY -->
+            {% if screenshots %}
+            <div class="glass-panel p-6 space-y-4">
+                <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-images text-purple-400"></i> High Definition Screenshots
+                </h2>
+                <div class="grid grid-cols-2 gap-4">
+                    {% for shot in screenshots %}
+                    <div class="rounded-lg overflow-hidden border border-white/5 aspect-video">
+                        <img src="{{ shot }}" alt="Screenshot {{ loop.index }}" class="w-full h-full object-cover hover:scale-105 duration-300 transition cursor-zoom-in" onclick="openLightbox('{{ shot }}')">
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- REVIEWS AND COMMENTS -->
+            <div class="glass-panel p-6 space-y-6">
+                <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-comments text-purple-400"></i> User Reviews ({{ reviews|length }})
+                </h2>
+
+                <!-- Submit Review Form -->
+                {% if current_user %}
+                <form action="/review/add/{{ movie.id }}" method="POST" class="space-y-4 bg-zinc-900/40 p-4 rounded-xl border border-white/5">
+                    <h3 class="font-bold text-sm text-white">Write your Review</h3>
+                    <div>
+                        <label class="text-xs text-zinc-400 block mb-1">Rating</label>
+                        <select name="rating" class="bg-zinc-900 border border-white/5 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-purple-500">
+                            <option value="5">⭐⭐⭐⭐⭐ (Excellent)</option>
+                            <option value="4">⭐⭐⭐⭐ (Good)</option>
+                            <option value="3">⭐⭐⭐ (Average)</option>
+                            <option value="2">⭐⭐ (Poor)</option>
+                            <option value="1">⭐ (Terrible)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs text-zinc-400 block mb-1">Your Comment</label>
+                        <textarea name="comment" rows="3" placeholder="Tell other users about the download speed, quality, and plot review..." class="w-full bg-zinc-900 border border-white/5 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500/50" required></textarea>
+                    </div>
+                    <div class="flex justify-end">
+                        <button type="submit" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-6 py-2 rounded-lg transition">Submit Review</button>
+                    </div>
+                </form>
+                {% else %}
+                <div class="p-4 bg-zinc-900/40 border border-white/5 rounded-xl text-center text-xs text-zinc-400">
+                    Please <a href="/auth" class="text-purple-400 hover:underline">sign in</a> to write a review.
+                </div>
+                {% endif %}
+
+                <!-- Reviews Listing -->
+                <div class="space-y-4">
+                    {% for review in reviews %}
+                    <div class="border-b border-white/5 pb-4 last:border-b-0 space-y-1">
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-sm text-white">{{ review.user.username }}</span>
+                            <span class="text-[10px] text-zinc-500">{{ review.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                        </div>
+                        <div class="text-yellow-400 text-xs">
+                            {% for i in range(review.rating) %}⭐{% endfor %}
+                        </div>
+                        <p class="text-sm text-zinc-300">{{ review.comment }}</p>
+                    </div>
+                    {% else %}
+                    <p class="text-sm text-zinc-500 italic text-center py-4">No reviews submitted yet. Be the first one!</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Sidebar / Cast & Advertisement Details -->
+        <div class="space-y-8">
+            <!-- Cast / Details Card -->
+            <div class="glass-panel p-6 space-y-4">
+                <h3 class="font-bold text-lg text-white">Metadata Details</h3>
+                <div class="space-y-3 text-sm">
+                    <div>
+                        <span class="text-xs text-zinc-500 block">Director</span>
+                        <span class="text-zinc-200 font-medium">{{ movie.director or 'Unknown' }}</span>
+                    </div>
+                    <div>
+                        <span class="text-xs text-zinc-500 block">Cast Starring</span>
+                        <span class="text-zinc-200 font-medium">{{ movie.cast or 'Unknown' }}</span>
+                    </div>
+                    <div>
+                        <span class="text-xs text-zinc-500 block">Release Date</span>
+                        <span class="text-zinc-200 font-medium">{{ movie.release_date }}</span>
+                    </div>
+                    <div>
+                        <span class="text-xs text-zinc-500 block">Quality Formats</span>
+                        <span class="text-zinc-200 font-medium">{{ movie.quality_options }}</span>
+                    </div>
+                    {% if movie.tags %}
+                    <div>
+                        <span class="text-xs text-zinc-500 block mb-1">Tags</span>
+                        <div class="flex flex-wrap gap-1.5">
+                            {% for tag in movie.tags.split(',') %}
+                            <span class="bg-zinc-800 text-zinc-300 text-[10px] px-2 py-0.5 rounded font-mono">{{ tag.strip() }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- ADVERTISEMENT SLOT (SIDEBAR SPONSORED BANNER) -->
+            {% if sidebar_ad %}
+            <div class="glass-panel p-4 text-center">
+                <span class="text-[9px] uppercase tracking-widest text-zinc-500 block mb-2">Sponsored Advertisement</span>
+                <a href="{{ sidebar_ad.target_url }}" target="_blank">
+                    <img src="{{ sidebar_ad.banner_url }}" alt="Sponsored" class="w-full rounded-lg hover:opacity-90 transition">
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- Lightbox Modal for Screenshots -->
+<div id="lightbox" class="fixed inset-0 z-50 bg-black/95 flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300" onclick="closeLightbox()">
+    <button class="absolute top-6 right-6 text-white text-3xl"><i class="fa-solid fa-xmark"></i></button>
+    <img id="lightbox-img" src="" class="max-w-[90vw] max-h-[85vh] rounded-lg shadow-2xl object-contain">
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Lightbox modal logic
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightbox-img');
+
+    function openLightbox(url) {
+        lightboxImg.src = url;
+        lightbox.classList.remove('opacity-0', 'pointer-events-none');
+    }
+
+    function closeLightbox() {
+        lightbox.classList.add('opacity-0', 'pointer-events-none');
+    }
+
+    // Toggle Wishlist functionality via AJAX
+    async function toggleWishlist(type, id, btn) {
+        try {
+            const response = await fetch(`/wishlist/toggle/${type}/${id}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const data = await response.json();
+            
+            if (response.ok) {
+                // Update icon style or text
+                const icon = btn.querySelector('i');
+                if (data.status === 'added') {
+                    icon.className = 'fa-solid fa-heart text-red-500';
+                    btn.classList.add('border-red-500/20');
+                } else {
+                    icon.className = 'fa-regular fa-heart';
+                    btn.classList.remove('border-red-500/20');
+                }
+                
+                // Show floating brief alert
+                alert(data.message);
+            } else {
+                alert("Please log in first to add items to watch later.");
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }
+</script>
+{% endblock %}

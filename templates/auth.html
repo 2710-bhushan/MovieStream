@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="max-w-md mx-auto px-6 py-16">
+    <div class="glass-panel p-8 space-y-8 relative overflow-hidden">
+        
+        <!-- Background accents -->
+        <div class="absolute -top-12 -left-12 h-36 w-36 bg-purple-500/10 rounded-full blur-2xl"></div>
+        <div class="absolute -bottom-12 -right-12 h-36 w-36 bg-indigo-500/10 rounded-full blur-2xl"></div>
+
+        {% if request.args.get('verify') == 'true' %}
+        <!-- OTP VERIFICATION VIEW -->
+        <div class="space-y-6 relative z-10">
+            <div class="text-center space-y-2">
+                <i class="fa-solid fa-envelope-open-text text-4xl text-purple-400"></i>
+                <h1 class="text-2xl font-black text-white">Enter OTP Code</h1>
+                <p class="text-xs text-zinc-400">We have sent a 6-digit confirmation code to your registered email address (check the server console logs).</p>
+            </div>
+
+            <form action="/auth/verify-otp" method="POST" class="space-y-4">
+                <div>
+                    <label class="text-xs text-zinc-400 block mb-1.5 font-bold">One-Time Password (OTP)</label>
+                    <input type="text" name="otp" placeholder="Enter 6-digit OTP code" maxlength="6" class="w-full bg-zinc-900 border border-white/5 rounded-xl px-4 py-3 text-center text-lg font-mono tracking-widest text-purple-400 focus:outline-none focus:border-purple-500" required>
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-purple-600/30">
+                    Verify Code
+                </button>
+            </form>
+        </div>
+        {% else %}
+        <!-- SIGN IN / SIGN UP TABS -->
+        <div class="relative z-10 space-y-6">
+            <div class="flex border-b border-white/5 pb-2">
+                <button onclick="toggleTab('login')" id="login-tab-btn" class="w-1/2 text-center pb-2 text-sm font-bold border-b-2 border-purple-500 text-white transition-all">Sign In</button>
+                <button onclick="toggleTab('register')" id="register-tab-btn" class="w-1/2 text-center pb-2 text-sm font-bold border-b-2 border-transparent text-zinc-400 transition-all">Register Account</button>
+            </div>
+
+            <!-- Login View -->
+            <form action="/auth/login" method="POST" id="login-form" class="space-y-4">
+                <div class="space-y-1">
+                    <label class="text-xs text-zinc-400 block font-bold">Username or Email</label>
+                    <input type="text" name="login_id" placeholder="e.g. admin or admin@gmail.com" class="w-full bg-zinc-900 border border-white/5 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500" required>
+                </div>
+                <div class="space-y-1">
+                    <label class="text-xs text-zinc-400 block font-bold">Password</label>
+                    <input type="password" name="password" placeholder="••••••••" class="w-full bg-zinc-900 border border-white/5 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500" required>
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-purple-600/30">
+                    Log In
+                </button>
+            </form>
+
+            <!-- Register View -->
+            <form action="/auth/register" method="POST" id="register-form" class="space-y-4 hidden">
+                <div class="space-y-1">
+                    <label class="text-xs text-zinc-400 block font-bold">Username</label>
+                    <input type="text" name="username" placeholder="e.g. johndoe" class="w-full bg-zinc-900 border border-white/5 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500" required>
+                </div>
+                <div class="space-y-1">
+                    <label class="text-xs text-zinc-400 block font-bold">Email Address</label>
+                    <input type="email" name="email" placeholder="e.g. john@example.com" class="w-full bg-zinc-900 border border-white/5 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500" required>
+                </div>
+                <div class="space-y-1">
+                    <label class="text-xs text-zinc-400 block font-bold">Mobile Phone</label>
+                    <input type="text" name="phone" placeholder="e.g. 9876543210" class="w-full bg-zinc-900 border border-white/5 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-xs text-zinc-400 block font-bold">Password</label>
+                    <input type="password" name="password" placeholder="Min. 8 characters" class="w-full bg-zinc-900 border border-white/5 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500" required>
+                </div>
+                <div class="space-y-1">
+                    <label class="text-xs text-zinc-400 block font-bold">Confirm Password</label>
+                    <input type="password" name="confirm_password" placeholder="Confirm password" class="w-full bg-zinc-900 border border-white/5 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500" required>
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-purple-600/30">
+                    Sign Up & Send OTP
+                </button>
+            </form>
+        </div>
+        {% endif %}
+
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function toggleTab(tab) {
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const loginBtn = document.getElementById('login-tab-btn');
+        const registerBtn = document.getElementById('register-tab-btn');
+
+        if (tab === 'login') {
+            loginForm.classList.remove('hidden');
+            registerForm.classList.add('hidden');
+            loginBtn.className = "w-1/2 text-center pb-2 text-sm font-bold border-b-2 border-purple-500 text-white transition-all";
+            registerBtn.className = "w-1/2 text-center pb-2 text-sm font-bold border-b-2 border-transparent text-zinc-400 transition-all";
+        } else {
+            loginForm.classList.add('hidden');
+            registerForm.classList.remove('hidden');
+            loginBtn.className = "w-1/2 text-center pb-2 text-sm font-bold border-b-2 border-transparent text-zinc-400 transition-all";
+            registerBtn.className = "w-1/2 text-center pb-2 text-sm font-bold border-b-2 border-purple-500 text-white transition-all";
+        }
+    }
+</script>
+{% endblock %}

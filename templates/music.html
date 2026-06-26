@@ -1,0 +1,359 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="max-w-7xl mx-auto px-6 py-8">
+    <div class="flex flex-col lg:flex-row gap-8">
+        
+        <!-- SONGS BROWSING PANEL (Left Column) -->
+        <div class="flex-grow lg:w-2/3 space-y-6">
+            
+            <!-- ALBUMS FILTER TABS -->
+            <div class="space-y-3">
+                <h2 class="text-lg font-bold text-white uppercase tracking-wider text-zinc-400">Featured Albums</h2>
+                <div class="flex flex-wrap gap-3">
+                    <a href="/music" class="px-4 py-2 rounded-full text-xs font-bold transition {% if not selected_album %}bg-purple-600 text-white shadow-lg{% else %}bg-zinc-900 text-zinc-400 border border-white/5 hover:border-white/10{% endif %}">
+                        All Songs
+                    </a>
+                    {% for album in albums %}
+                    <a href="/music?album={{ album.id }}" class="px-4 py-2 rounded-full text-xs font-bold transition {% if selected_album == album.id %}bg-purple-600 text-white shadow-lg{% else %}bg-zinc-900 text-zinc-400 border border-white/5 hover:border-white/10{% endif %}">
+                        {{ album.title }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- SEARCH BAR -->
+            <form action="/music" method="GET" class="relative">
+                {% if selected_album %}
+                <input type="hidden" name="album" value="{{ selected_album }}">
+                {% endif %}
+                <input type="text" name="q" value="{{ query }}" placeholder="Search songs, artists, lyrics..." class="w-full bg-zinc-900/60 border border-white/5 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500/50">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-zinc-500"></i>
+            </form>
+
+            <!-- TRACK LIST PANEL -->
+            <div class="glass-panel overflow-hidden">
+                <div class="p-4 bg-black/20 border-b border-white/5 text-xs font-bold text-zinc-500 uppercase tracking-wider grid grid-cols-12 gap-2">
+                    <div class="col-span-1 text-center">#</div>
+                    <div class="col-span-6 md:col-span-7">Title</div>
+                    <div class="col-span-3 md:col-span-2">Access</div>
+                    <div class="col-span-2 text-right">Actions</div>
+                </div>
+
+                <div class="divide-y divide-white/5">
+                    {% for song in songs %}
+                    <div class="p-4 grid grid-cols-12 gap-2 items-center hover:bg-white/5 transition duration-200 group text-sm" id="song-row-{{ song.id }}">
+                        <!-- Index / Play icon trigger -->
+                        <div class="col-span-1 text-center text-zinc-500 font-bold group-hover:hidden">
+                            {{ loop.index }}
+                        </div>
+                        <div class="col-span-1 text-center hidden group-hover:block text-purple-400 cursor-pointer" onclick="loadSong({{ song.id }}, '{{ song.title }}', '{{ song.artist }}', '{{ song.audio_url }}', '{{ song.cover_url }}', '{{ song.lyrics|replace('\n', '\\n') }}')">
+                            <i class="fa-solid fa-play"></i>
+                        </div>
+
+                        <!-- Info details -->
+                        <div class="col-span-6 md:col-span-7 flex items-center gap-3 min-w-0">
+                            <img src="{{ song.cover_url or 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=50&q=80' }}" alt="Cover" class="h-10 w-10 object-cover rounded-md flex-shrink-0">
+                            <div class="min-w-0">
+                                <span class="font-bold text-white block truncate">{{ song.title }}</span>
+                                <span class="text-xs text-zinc-400 block truncate">{{ song.artist or 'Various Artists' }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Price / Access tag -->
+                        <div class="col-span-3 md:col-span-2 text-xs">
+                            {% if song.song_type == 'free' %}
+                            <span class="bg-emerald-950 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded font-bold uppercase tracking-wider text-[9px]">Free</span>
+                            {% elif song.id in purchased_songs %}
+                            <span class="bg-purple-950 text-purple-400 border border-purple-500/20 px-2 py-0.5 rounded font-bold uppercase tracking-wider text-[9px]">Purchased</span>
+                            {% else %}
+                            <span class="bg-purple-600 text-white px-2 py-0.5 rounded font-bold uppercase tracking-wider text-[9px]">₹{{ song.price }}</span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Buttons: Play, Download, Favorites -->
+                        <div class="col-span-2 flex items-center justify-end gap-3">
+                            {% if song.song_type == 'free' or song.id in purchased_songs %}
+                            <a href="/download/request/song/{{ song.id }}" class="text-zinc-400 hover:text-white transition" title="Download audio file">
+                                <i class="fa-solid fa-cloud-arrow-down"></i>
+                            </a>
+                            {% else %}
+                            <a href="/checkout/song/{{ song.id }}" class="text-purple-400 hover:text-purple-300 font-bold transition text-xs" title="Purchase track">
+                                <i class="fa-solid fa-cart-shopping"></i> Buy
+                            </a>
+                            {% endif %}
+                            
+                            <button onclick="toggleFavorite({{ song.id }}, this)" class="text-zinc-500 hover:text-red-500 transition">
+                                <i class="fa-regular fa-heart"></i>
+                            </button>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="p-8 text-center text-zinc-500 italic">No songs found matching query.</div>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+
+        <!-- LYRICS & MUSIC VIDEO PANEL (Right Column) -->
+        <div class="lg:w-1/3 space-y-6">
+            
+            <!-- Persist player info -->
+            <div class="glass-panel p-6 space-y-6 flex flex-col items-center text-center">
+                <div class="relative w-48 aspect-square rounded-full overflow-hidden border-2 border-purple-500/20 shadow-xl group" id="player-avatar-wrapper">
+                    <img id="player-avatar" src="https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?auto=format&fit=crop&w=300&q=80" alt="Vinyl" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition duration-200">
+                        <i class="fa-solid fa-music text-3xl text-purple-400"></i>
+                    </div>
+                </div>
+                
+                <div class="space-y-1.5 w-full">
+                    <h3 class="font-black text-xl text-white truncate" id="player-title">Cybernetic Waves</h3>
+                    <p class="text-sm text-zinc-400 truncate" id="player-artist">Select a track to start playing</p>
+                </div>
+
+                <!-- PERSISTENT LYRIC SYNCRONIZER -->
+                <div class="w-full border-t border-white/5 pt-4 text-left">
+                    <h4 class="text-xs uppercase font-bold text-zinc-500 mb-2 tracking-wider"><i class="fa-solid fa-quote-left mr-1"></i> Sync Lyrics</h4>
+                    <div class="h-44 overflow-y-auto bg-black/30 border border-white/5 rounded-xl p-3 text-xs space-y-2 leading-relaxed select-none" id="lyrics-container">
+                        <p class="text-zinc-500 italic text-center py-12">Play a song to view synchronised lyrics.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+<!-- FLOATING PERSISTENT CONTROLLER BAR -->
+<div class="fixed bottom-0 left-0 w-full bg-zinc-950/95 backdrop-blur-xl border-t border-white/10 p-4 z-40 transition-all transform translate-y-full shadow-2xl flex flex-col md:flex-row items-center justify-between gap-4 max-w-full" id="audio-dock">
+    
+    <!-- Left panel info -->
+    <div class="flex items-center gap-3 w-full md:w-1/4 min-w-0">
+        <img id="dock-avatar" src="" alt="Album Cover" class="h-12 w-12 rounded object-cover border border-white/10 flex-shrink-0">
+        <div class="min-w-0">
+            <span class="font-bold text-white block text-sm truncate" id="dock-title">Neon Dreams</span>
+            <span class="text-xs text-zinc-400 block truncate" id="dock-artist">Synthwave Orchestra</span>
+        </div>
+    </div>
+
+    <!-- Center playback controls -->
+    <div class="flex flex-col items-center gap-1.5 w-full md:w-2/4">
+        <!-- Controls -->
+        <div class="flex items-center gap-6">
+            <button class="text-zinc-400 hover:text-white transition"><i class="fa-solid fa-backward-step"></i></button>
+            <button id="dock-play-btn" class="h-10 w-10 rounded-full bg-purple-600 hover:bg-purple-500 text-white flex items-center justify-center shadow-lg transition"><i class="fa-solid fa-play"></i></button>
+            <button class="text-zinc-400 hover:text-white transition"><i class="fa-solid fa-forward-step"></i></button>
+        </div>
+        <!-- Seek Bar -->
+        <div class="flex items-center gap-2 w-full text-[10px] text-zinc-500">
+            <span id="dock-current-time">0:00</span>
+            <input type="range" id="dock-seek-bar" min="0" max="100" value="0" class="flex-grow h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-purple-500">
+            <span id="dock-duration">0:00</span>
+        </div>
+    </div>
+
+    <!-- Right Vol Control -->
+    <div class="hidden md:flex items-center justify-end gap-2 w-full md:w-1/4 text-zinc-400">
+        <i class="fa-solid fa-volume-low text-xs"></i>
+        <input type="range" id="dock-volume" min="0" max="100" value="70" class="w-20 h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-purple-500">
+        <button onclick="document.getElementById('audio-dock').classList.add('translate-y-full')" class="ml-4 hover:text-white transition" title="Minimize Player"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+</div>
+
+<!-- HIDDEN HTML5 AUDIO ELEMENT -->
+<audio id="html5-audio" class="hidden"></audio>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const audio = document.getElementById('html5-audio');
+    const audioDock = document.getElementById('audio-dock');
+    const dockPlayBtn = document.getElementById('dock-play-btn');
+    const dockSeekBar = document.getElementById('dock-seek-bar');
+    const dockVolume = document.getElementById('dock-volume');
+    const dockCurrentTime = document.getElementById('dock-current-time');
+    const dockDuration = document.getElementById('dock-duration');
+    const dockAvatar = document.getElementById('dock-avatar');
+    const dockTitle = document.getElementById('dock-title');
+    const dockArtist = document.getElementById('dock-artist');
+    const playerAvatar = document.getElementById('player-avatar');
+    const playerTitle = document.getElementById('player-title');
+    const playerArtist = document.getElementById('player-artist');
+    const lyricsContainer = document.getElementById('lyrics-container');
+
+    let parsedLyrics = [];
+
+    // Parse timing tags like [00:12] text
+    function parseLyrics(lyricStr) {
+        if (!lyricStr) return [];
+        const lines = lyricStr.split('\n');
+        const results = [];
+        
+        lines.forEach(line => {
+            const timeMatch = line.match(/^\[(\d{2}):(\d{2})\](.*)/);
+            if (timeMatch) {
+                const minutes = parseInt(timeMatch[1]);
+                const seconds = parseInt(timeMatch[2]);
+                const text = timeMatch[3].trim();
+                const totalSeconds = (minutes * 60) + seconds;
+                results.push({ time: totalSeconds, text: text });
+            } else {
+                results.push({ time: -1, text: line });
+            }
+        });
+        return results;
+    }
+
+    function renderLyrics() {
+        if (!parsedLyrics.length) {
+            lyricsContainer.innerHTML = `<p class="text-zinc-500 italic text-center py-12">No lyrics available for this song.</p>`;
+            return;
+        }
+
+        lyricsContainer.innerHTML = '';
+        parsedLyrics.forEach((item, index) => {
+            const p = document.createElement('p');
+            p.className = `lyric-line transition-all duration-300 py-1 ${item.time === -1 ? 'text-zinc-500 font-serif' : 'text-zinc-400'}`;
+            p.id = `lyric-line-${index}`;
+            p.innerText = item.text;
+            lyricsContainer.appendChild(p);
+        });
+    }
+
+    function syncLyrics(currentTime) {
+        if (!parsedLyrics.length) return;
+        
+        let activeIndex = -1;
+        for (let i = 0; i < parsedLyrics.length; i++) {
+            if (parsedLyrics[i].time !== -1 && currentTime >= parsedLyrics[i].time) {
+                activeIndex = i;
+            }
+        }
+
+        if (activeIndex !== -1) {
+            document.querySelectorAll('.lyric-line').forEach((el, index) => {
+                if (index === activeIndex) {
+                    el.classList.add('text-purple-400', 'font-bold', 'text-sm');
+                    el.classList.remove('text-zinc-400');
+                    // Center active lyric line in container
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } else {
+                    el.classList.remove('text-purple-400', 'font-bold', 'text-sm');
+                    el.classList.add('text-zinc-400');
+                }
+            });
+        }
+    }
+
+    // Load and Play Audio Row Trigger
+    function loadSong(id, title, artist, audioUrl, coverUrl, lyricsStr) {
+        audio.src = audioUrl;
+        audio.play();
+
+        // Reveal Dock
+        audioDock.classList.remove('translate-y-full');
+        dockPlayBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+
+        // Update layouts
+        dockAvatar.src = coverUrl || 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=50&q=80';
+        dockTitle.innerText = title;
+        dockArtist.innerText = artist;
+
+        playerAvatar.src = coverUrl || 'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?auto=format&fit=crop&w=300&q=80';
+        playerTitle.innerText = title;
+        playerArtist.innerText = artist;
+
+        // Rotating Vinyl animation
+        document.getElementById('player-avatar').classList.add('animate-spin');
+        // Let's set 20s rotate
+        document.getElementById('player-avatar').style.animation = 'spin 20s linear infinite';
+
+        // Parse and render lyrics
+        parsedLyrics = parseLyrics(lyricsStr);
+        renderLyrics();
+    }
+
+    // Controls listeners
+    dockPlayBtn.addEventListener('click', () => {
+        if (audio.paused) {
+            audio.play();
+            dockPlayBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+            playerAvatar.style.animationPlayState = 'running';
+        } else {
+            audio.pause();
+            dockPlayBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
+            playerAvatar.style.animationPlayState = 'paused';
+        }
+    });
+
+    // Time/Progress update
+    audio.addEventListener('timeupdate', () => {
+        const current = audio.currentTime;
+        const duration = audio.duration || 0;
+        
+        // Seek bar percentage
+        if (duration > 0) {
+            dockSeekBar.value = (current / duration) * 100;
+        }
+
+        // Timer text
+        dockCurrentTime.innerText = formatTime(current);
+        dockDuration.innerText = formatTime(duration);
+
+        // Sync Lyrics
+        syncLyrics(current);
+    });
+
+    // Seek listener
+    dockSeekBar.addEventListener('input', () => {
+        const duration = audio.duration || 0;
+        audio.currentTime = (dockSeekBar.value / 100) * duration;
+    });
+
+    // Volume listener
+    dockVolume.addEventListener('input', () => {
+        audio.volume = dockVolume.value / 100;
+    });
+
+    function formatTime(secs) {
+        const m = Math.floor(secs / 60);
+        const s = Math.floor(secs % 60);
+        return `${m}:${s < 10 ? '0' : ''}${s}`;
+    }
+
+    // Toggle Wishlist / Favorite
+    async function toggleFavorite(songId, btn) {
+        try {
+            const response = await fetch(`/wishlist/toggle/song/${songId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const data = await response.json();
+            
+            if (response.ok) {
+                const icon = btn.querySelector('i');
+                if (data.status === 'added') {
+                    icon.className = 'fa-solid fa-heart text-red-500';
+                } else {
+                    icon.className = 'fa-regular fa-heart';
+                }
+                alert(data.message);
+            } else {
+                alert("Please log in first.");
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }
+</script>
+<style>
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+</style>
+{% endblock %}

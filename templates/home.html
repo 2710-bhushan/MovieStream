@@ -1,0 +1,568 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- HERO BANNER CAROUSEL -->
+<section class="relative w-full overflow-hidden h-[450px] md:h-[550px] mb-8 bg-zinc-950">
+    <div class="absolute inset-0">
+        {% if banner_promos %}
+            {% for banner in banner_promos %}
+            <div class="carousel-slide absolute inset-0 transition-opacity duration-1000 ease-in-out {% if loop.index0 == 0 %}opacity-100{% else %}opacity-0 pointer-events-none{% endif %}" data-slide="{{ loop.index0 }}">
+                <img src="{{ banner.image_url }}" alt="{{ banner.title }}" class="w-full h-full object-cover opacity-40">
+                <div class="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent"></div>
+                <div class="absolute bottom-12 left-6 md:left-16 max-w-xl space-y-4">
+                    <span class="bg-purple-600/30 text-purple-400 border border-purple-500/20 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Spotlight Offer</span>
+                    <h1 class="text-4xl md:text-6xl font-black tracking-tight text-white leading-none">{{ banner.title }}</h1>
+                    <p class="text-lg text-zinc-300 font-medium">{{ banner.subtitle }}</p>
+                    <div class="pt-2">
+                        <a href="{{ banner.target_url }}" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold px-8 py-3 rounded-full shadow-lg shadow-purple-600/30 transition hover:scale-105 inline-block">
+                            Get Access Now
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <!-- Default Slide if no active promos -->
+            <div class="carousel-slide absolute inset-0">
+                <img src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=1200&q=80" alt="Placeholder Banner" class="w-full h-full object-cover opacity-30">
+                <div class="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent"></div>
+                <div class="absolute bottom-16 left-6 md:left-16 max-w-xl space-y-4">
+                    <span class="bg-purple-600/30 text-purple-400 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Cyberpunk Masterpiece</span>
+                    <h1 class="text-5xl md:text-6xl font-black tracking-tight text-white leading-none">Neon Horizon 2049</h1>
+                    <p class="text-lg text-zinc-300">Dive into the legendary sci-fi blockbuster. Full download servers and subtitles available now.</p>
+                    <div class="pt-2">
+                        <a href="/movies" class="bg-purple-600 hover:bg-purple-500 text-white font-bold px-8 py-3 rounded-full transition inline-block">
+                            Browse Catalog
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Carousel Controls -->
+    {% if banner_promos and banner_promos|length > 1 %}
+    <div class="absolute bottom-4 right-6 md:right-16 flex gap-2">
+        {% for banner in banner_promos %}
+        <button class="carousel-dot h-2 w-2 rounded-full transition {% if loop.index0 == 0 %}bg-purple-500 w-6{% else %}bg-zinc-600{% endif %}" onclick="goToSlide({{ loop.index0 }})"></button>
+        {% endfor %}
+    </div>
+    {% endif %}
+</section>
+
+<!-- ADVERTISEMENT SECTION (GOOGLE ADSENSE ACCENT) -->
+{% if adsense_top %}
+<section class="max-w-7xl mx-auto px-6 mb-12">
+    <!-- AdSense Script Execution -->
+    <div class="hidden">
+        {{ adsense_top.ad_code | safe }}
+    </div>
+    
+    <!-- Premium Mock Ad Container for Localhost / Live Preview -->
+    <div class="glass-panel p-4 border border-dashed border-purple-500/30 bg-gradient-to-r from-purple-950/15 via-zinc-900 to-indigo-950/15 flex flex-col md:flex-row justify-between items-center gap-4 relative overflow-hidden rounded-2xl shadow-lg">
+        <div class="absolute -right-16 -top-16 h-32 w-32 bg-purple-500/10 rounded-full blur-2xl"></div>
+        <div class="absolute -left-16 -bottom-16 h-32 w-32 bg-indigo-500/10 rounded-full blur-2xl"></div>
+        <div class="flex items-center gap-3.5 relative z-10">
+            <div class="h-8 w-8 bg-purple-600/20 border border-purple-500/30 rounded-lg flex items-center justify-center text-purple-400">
+                <i class="fa-solid fa-rectangle-ad text-sm"></i>
+            </div>
+            <div>
+                <span class="bg-purple-600/20 text-purple-400 border border-purple-500/20 px-2 py-0.5 rounded text-[9px] uppercase font-bold tracking-wide inline-block mb-1">Google AdSense Active</span>
+                <p class="text-xs text-zinc-300 font-medium">Dynamic Ad Banner placeholder (Active verification script in header on port 5000)</p>
+            </div>
+        </div>
+        <div class="text-[10px] text-zinc-500 font-mono relative z-10 bg-black/30 px-3 py-1.5 rounded-lg border border-white/5">
+            ca-pub-8471194516724047
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- LIVE SPORTS & TOURNAMENTS SECTION -->
+<section class="max-w-7xl mx-auto px-6 mb-12">
+    <div class="flex justify-between items-end mb-6">
+        <div>
+            <span class="text-purple-400 font-semibold text-sm uppercase tracking-wider flex items-center gap-1.5">
+                <span class="h-2 w-2 rounded-full bg-red-600 animate-pulse"></span> Streaming Live
+            </span>
+            <h2 class="text-2xl md:text-3xl font-black text-white">Live Sports & Tournaments</h2>
+        </div>
+        <span class="text-xs text-zinc-400 font-medium hidden sm:inline bg-white/5 px-3 py-1 rounded-full border border-white/5">Free on Mobile App</span>
+    </div>
+
+    <!-- Sports Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+        <!-- Live Cricket Match Card -->
+        <div class="glass-panel overflow-hidden group hover:border-purple-500/30 duration-300 transition flex flex-col justify-between h-full relative">
+            <div class="absolute top-3 left-3 z-10">
+                <span class="bg-red-600 text-white font-extrabold text-[9px] uppercase px-2 py-0.5 rounded tracking-wide animate-pulse flex items-center gap-1">
+                    <span class="h-1.5 w-1.5 rounded-full bg-white"></span> LIVE
+                </span>
+            </div>
+            <div class="relative overflow-hidden aspect-video bg-zinc-950">
+                <img src="https://images.unsplash.com/photo-1540747737956-37872404a821?auto=format&fit=crop&w=600&q=80" alt="ICC T20 World Cup" class="w-full h-full object-cover group-hover:scale-105 duration-300 transition">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+            </div>
+            <div class="p-4 flex-grow flex flex-col justify-between">
+                <div>
+                    <span class="text-[9px] uppercase text-purple-400 font-bold block">ICC T20 World Cup</span>
+                    <h3 class="font-extrabold text-white text-sm mt-1">India vs Pakistan</h3>
+                    <p class="text-xs text-zinc-400 mt-1 line-clamp-2">The mother of all cricket clashes live in ultra high definition. Watch free on mobile screens.</p>
+                </div>
+                <div class="pt-4 border-t border-white/5 mt-3 flex justify-between items-center">
+                    <span class="text-[10px] text-zinc-500"><i class="fa-regular fa-user mr-1"></i> 14.2M Watching</span>
+                    <a href="/movies" class="bg-purple-600 hover:bg-purple-500 text-white text-[10px] font-bold px-3 py-1.5 rounded-full transition flex items-center gap-1 shadow-md shadow-purple-600/10">
+                        <i class="fa-solid fa-play text-[8px]"></i> Watch Stream
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Football Match Card -->
+        <div class="glass-panel overflow-hidden group hover:border-purple-500/30 duration-300 transition flex flex-col justify-between h-full relative">
+            <div class="absolute top-3 left-3 z-10">
+                <span class="bg-red-600 text-white font-extrabold text-[9px] uppercase px-2 py-0.5 rounded tracking-wide animate-pulse flex items-center gap-1">
+                    <span class="h-1.5 w-1.5 rounded-full bg-white"></span> LIVE
+                </span>
+            </div>
+            <div class="relative overflow-hidden aspect-video bg-zinc-950">
+                <img src="https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=600&q=80" alt="Premier League" class="w-full h-full object-cover group-hover:scale-105 duration-300 transition">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+            </div>
+            <div class="p-4 flex-grow flex flex-col justify-between">
+                <div>
+                    <span class="text-[9px] uppercase text-purple-400 font-bold block">English Premier League</span>
+                    <h3 class="font-extrabold text-white text-sm mt-1">Man United vs Chelsea</h3>
+                    <p class="text-xs text-zinc-400 mt-1 line-clamp-2">Historic rivalries reignited at Old Trafford. Stream live or catch complete post-match analysis.</p>
+                </div>
+                <div class="pt-4 border-t border-white/5 mt-3 flex justify-between items-center">
+                    <span class="text-[10px] text-zinc-500"><i class="fa-regular fa-user mr-1"></i> 2.8M Watching</span>
+                    <a href="/movies" class="bg-purple-600 hover:bg-purple-500 text-white text-[10px] font-bold px-3 py-1.5 rounded-full transition flex items-center gap-1 shadow-md shadow-purple-600/10">
+                        <i class="fa-solid fa-play text-[8px]"></i> Watch Stream
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Tennis Match Card -->
+        <div class="glass-panel overflow-hidden group hover:border-purple-500/30 duration-300 transition flex flex-col justify-between h-full relative">
+            <div class="absolute top-3 left-3 z-10">
+                <span class="bg-zinc-800 text-zinc-300 border border-white/10 font-extrabold text-[9px] uppercase px-2 py-0.5 rounded tracking-wide flex items-center gap-1">
+                    <i class="fa-solid fa-clock"></i> Starts at 20:30
+                </span>
+            </div>
+            <div class="relative overflow-hidden aspect-video bg-zinc-950">
+                <img src="https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?auto=format&fit=crop&w=600&q=80" alt="Wimbledon" class="w-full h-full object-cover group-hover:scale-105 duration-300 transition">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+            </div>
+            <div class="p-4 flex-grow flex flex-col justify-between">
+                <div>
+                    <span class="text-[9px] uppercase text-purple-400 font-bold block">Wimbledon Finals</span>
+                    <h3 class="font-extrabold text-white text-sm mt-1">Men's Singles Final Match</h3>
+                    <p class="text-xs text-zinc-400 mt-1 line-clamp-2">The grand court championship matches live from London. Subscribe to Super/Premium to stream.</p>
+                </div>
+                <div class="pt-4 border-t border-white/5 mt-3 flex justify-between items-center">
+                    <span class="text-[10px] text-zinc-500">Upcoming Live Event</span>
+                    <a href="/subscriptions" class="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white text-[10px] font-bold px-3 py-1.5 rounded-full transition flex items-center gap-1 border border-white/5">
+                        Get Ticket Pass
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Esports Match Card -->
+        <div class="glass-panel overflow-hidden group hover:border-purple-500/30 duration-300 transition flex flex-col justify-between h-full relative">
+            <div class="absolute top-3 left-3 z-10">
+                <span class="bg-red-600 text-white font-extrabold text-[9px] uppercase px-2 py-0.5 rounded tracking-wide animate-pulse flex items-center gap-1">
+                    <span class="h-1.5 w-1.5 rounded-full bg-white"></span> LIVE
+                </span>
+            </div>
+            <div class="relative overflow-hidden aspect-video bg-zinc-950">
+                <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=600&q=80" alt="Esports World Cup" class="w-full h-full object-cover group-hover:scale-105 duration-300 transition">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+            </div>
+            <div class="p-4 flex-grow flex flex-col justify-between">
+                <div>
+                    <span class="text-[9px] uppercase text-purple-400 font-bold block">Esports Championship</span>
+                    <h3 class="font-extrabold text-white text-sm mt-1">Valorant Grand Finals</h3>
+                    <p class="text-xs text-zinc-400 mt-1 line-clamp-2">World's elite teams face off in the ultimate tactical shootout championship match live stream.</p>
+                </div>
+                <div class="pt-4 border-t border-white/5 mt-3 flex justify-between items-center">
+                    <span class="text-[10px] text-zinc-500"><i class="fa-regular fa-user mr-1"></i> 890K Watching</span>
+                    <a href="/movies" class="bg-purple-600 hover:bg-purple-500 text-white text-[10px] font-bold px-3 py-1.5 rounded-full transition flex items-center gap-1 shadow-md shadow-purple-600/10">
+                        <i class="fa-solid fa-play text-[8px]"></i> Watch Stream
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- TRENDING MOVIES SECTION -->
+<section class="max-w-7xl mx-auto px-6 mb-12">
+    <div class="flex justify-between items-end mb-6">
+        <div>
+            <span class="text-purple-400 font-semibold text-sm uppercase tracking-wider">What's Hot</span>
+            <h2 class="text-2xl md:text-3xl font-black text-white">Trending Movies</h2>
+        </div>
+        <a href="/movies" class="text-sm font-bold text-purple-400 hover:text-purple-300 flex items-center gap-1 transition">
+            See All <i class="fa-solid fa-chevron-right text-xs"></i>
+        </a>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+        {% for movie in trending %}
+        <div class="glass-panel overflow-hidden group hover:border-purple-500/30 duration-300 transition">
+            <div class="relative overflow-hidden aspect-[2/3]">
+                <img src="{{ movie.poster_url or 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?auto=format&fit=crop&w=400&q=80' }}" alt="{{ movie.title }}" class="w-full h-full object-cover group-hover:scale-105 duration-300 transition">
+                <div class="absolute top-2 right-2 flex flex-col gap-1">
+                    <span class="bg-black/70 backdrop-blur-md text-yellow-400 text-xs px-2 py-0.5 rounded font-bold">
+                        <i class="fa-solid fa-star text-[10px] mr-1"></i> {{ movie.imdb_rating }}
+                    </span>
+                    {% if movie.is_paid %}
+                    <span class="bg-purple-600 text-white text-[10px] font-extrabold uppercase px-2 py-0.5 rounded tracking-wide text-center">
+                        Premium
+                    </span>
+                    {% else %}
+                    <span class="bg-emerald-600 text-white text-[10px] font-extrabold uppercase px-2 py-0.5 rounded tracking-wide text-center">
+                        Free
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="p-4 space-y-1.5">
+                <span class="text-[10px] uppercase text-zinc-500 font-bold">{{ movie.genre }}</span>
+                <h3 class="font-bold text-white group-hover:text-purple-400 transition truncate"><a href="/movie/{{ movie.id }}">{{ movie.title }}</a></h3>
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-zinc-400">{{ movie.language }}</span>
+                    {% if movie.is_paid %}
+                    <span class="text-purple-400 font-bold">₹{{ movie.price }}</span>
+                    {% else %}
+                    <span class="text-emerald-400 font-bold">Download</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- FLASH SALES & SEASONAL PROMOTIONS -->
+{% if flash_sales %}
+<section class="max-w-7xl mx-auto px-6 mb-12">
+    {% for sale in flash_sales %}
+    <div class="glass-panel border-purple-500/20 bg-gradient-to-r from-purple-950/20 to-indigo-950/20 p-6 md:p-8 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-6">
+        <div class="space-y-2 text-center md:text-left">
+            <span class="bg-red-600 text-white text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider animate-pulse">Flash Offer</span>
+            <h3 class="text-2xl md:text-3xl font-extrabold text-white">{{ sale.title }}</h3>
+            <p class="text-sm text-zinc-300">{{ sale.subtitle }}</p>
+        </div>
+        <div class="flex items-center gap-4 bg-black/40 border border-white/5 px-6 py-4 rounded-xl">
+            <div>
+                <span class="text-xs uppercase text-zinc-500 block">Use Coupon Code</span>
+                <span class="font-mono text-xl font-bold tracking-widest text-purple-400">{{ sale.coupon_code }}</span>
+            </div>
+            <div class="bg-purple-600 text-black font-black text-lg p-2 rounded-lg">
+                {{ sale.discount_percent | int }}% OFF
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</section>
+{% endif %}
+
+<!-- JIOHOTSTAR SPECIALS (WEB SERIES) SECTION -->
+<section class="max-w-7xl mx-auto px-6 mb-12">
+    <div class="flex justify-between items-end mb-6">
+        <div>
+            <span class="text-purple-400 font-semibold text-sm uppercase tracking-wider">{{ settings.site_name }} Exclusives</span>
+            <h2 class="text-2xl md:text-3xl font-black text-white">{{ settings.site_name }} Specials</h2>
+        </div>
+        <a href="/webseries" class="text-sm font-bold text-purple-400 hover:text-purple-300 flex items-center gap-1 transition">
+            See All Series <i class="fa-solid fa-chevron-right text-xs"></i>
+        </a>
+    </div>
+
+    {% if web_series %}
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+        {% for ws in web_series %}
+        <div class="glass-panel overflow-hidden group hover:border-purple-500/30 duration-300 transition flex flex-col justify-between h-full">
+            <div class="relative overflow-hidden aspect-[2/3] bg-zinc-950">
+                <img src="{{ ws.poster_url or 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?auto=format&fit=crop&w=400&q=80' }}" alt="{{ ws.title }}" class="w-full h-full object-cover group-hover:scale-105 duration-300 transition">
+                <div class="absolute top-2 right-2">
+                    {% if ws.is_paid %}
+                    <span class="bg-purple-600 text-white text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded tracking-wide text-center">
+                        Premium
+                    </span>
+                    {% else %}
+                    <span class="bg-emerald-600 text-white text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded tracking-wide text-center">
+                        Free
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="p-4 space-y-2 flex-grow flex flex-col justify-between">
+                <div>
+                    <span class="text-[9px] uppercase text-zinc-500 font-bold block">{{ ws.genre }}</span>
+                    <h3 class="font-bold text-white group-hover:text-purple-400 transition truncate text-sm">
+                        <a href="/webseries/{{ ws.id }}">{{ ws.title }}</a>
+                    </h3>
+                </div>
+                <div class="flex justify-between items-center text-xs pt-2 border-t border-white/5">
+                    <span class="text-zinc-500 truncate max-w-[100px]">Dir: {{ ws.director or 'AI' }}</span>
+                    {% if ws.is_paid %}
+                    <span class="text-purple-400 font-bold">₹{{ ws.price }}</span>
+                    {% else %}
+                    <span class="text-emerald-400 font-bold">Free</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-zinc-500 text-sm">No web series published yet.</p>
+    {% endif %}
+</section>
+
+<!-- MUSIC STREAMS SECTION -->
+<section class="max-w-7xl mx-auto px-6 mb-12">
+    <div class="flex justify-between items-end mb-6">
+        <div>
+            <span class="text-purple-400 font-semibold text-sm uppercase tracking-wider">Music Library</span>
+            <h2 class="text-2xl md:text-3xl font-black text-white">Music Streams & Compilation Hits</h2>
+        </div>
+        <a href="/music" class="text-sm font-bold text-purple-400 hover:text-purple-300 flex items-center gap-1 transition">
+            Open Music Player <i class="fa-solid fa-circle-play"></i>
+        </a>
+    </div>
+
+    <!-- Albums Row -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {% for album in albums %}
+        <div class="glass-panel p-4 flex flex-col gap-3 group hover:border-purple-500/30 transition duration-300">
+            <div class="aspect-square w-full rounded-lg overflow-hidden relative">
+                <img src="{{ album.cover_url or 'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?auto=format&fit=crop&w=400&q=80' }}" alt="{{ album.title }}" class="w-full h-full object-cover">
+                <a href="/music?album={{ album.id }}" class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition duration-200">
+                    <div class="h-12 w-12 rounded-full bg-purple-600 text-white flex items-center justify-center shadow-lg"><i class="fa-solid fa-play text-lg"></i></div>
+                </a>
+            </div>
+            <div>
+                <h3 class="font-bold text-white truncate"><a href="/music?album={{ album.id }}">{{ album.title }}</a></h3>
+                <p class="text-xs text-zinc-400 truncate">{{ album.artist }}</p>
+                <p class="text-[10px] text-zinc-500 mt-1 truncate">{{ album.description }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- FREE VS PREMIUM MOVIES -->
+<section class="max-w-7xl mx-auto px-6 mb-12 grid grid-cols-1 md:grid-cols-2 gap-8">
+    <!-- Free Downloads Column -->
+    <div>
+        <div class="flex justify-between items-end mb-6">
+            <h2 class="text-xl font-black text-white flex items-center gap-2">
+                <span class="h-2 w-2 rounded-full bg-emerald-500"></span> Free Download Collection
+            </h2>
+            <a href="/movies?price_type=free" class="text-xs text-emerald-400 hover:text-emerald-300 font-bold transition">View Free Catalog</a>
+        </div>
+        
+        <div class="space-y-4">
+            {% for movie in movies_free | slice_limit(3) %}
+            <div class="glass-panel p-3 flex gap-4 hover:border-emerald-500/20 duration-300 transition">
+                <img src="{{ movie.poster_url }}" alt="{{ movie.title }}" class="h-20 w-14 object-cover rounded-md">
+                <div class="flex-grow min-w-0 flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-bold text-sm text-white truncate"><a href="/movie/{{ movie.id }}">{{ movie.title }}</a></h3>
+                        <p class="text-xs text-zinc-500 truncate">{{ movie.genre }} | {{ movie.language }}</p>
+                    </div>
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="text-zinc-400"><i class="fa-solid fa-star text-yellow-500 text-[10px]"></i> {{ movie.imdb_rating }}</span>
+                        <a href="/movie/{{ movie.id }}" class="text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1">
+                            Free Download <i class="fa-solid fa-arrow-down text-[10px]"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Premium Blockbusters Column -->
+    <div>
+        <div class="flex justify-between items-end mb-6">
+            <h2 class="text-xl font-black text-white flex items-center gap-2">
+                <span class="h-2 w-2 rounded-full bg-purple-500"></span> Premium Selling Hits
+            </h2>
+            <a href="/movies?price_type=paid" class="text-xs text-purple-400 hover:text-purple-300 font-bold transition">View Premium Catalog</a>
+        </div>
+        
+        <div class="space-y-4">
+            {% for movie in movies_paid | slice_limit(3) %}
+            <div class="glass-panel p-3 flex gap-4 hover:border-purple-500/20 duration-300 transition">
+                <img src="{{ movie.poster_url }}" alt="{{ movie.title }}" class="h-20 w-14 object-cover rounded-md">
+                <div class="flex-grow min-w-0 flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-bold text-sm text-white truncate"><a href="/movie/{{ movie.id }}">{{ movie.title }}</a></h3>
+                        <p class="text-xs text-zinc-500 truncate">{{ movie.genre }} | {{ movie.language }}</p>
+                    </div>
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="text-zinc-400"><i class="fa-solid fa-star text-yellow-500 text-[10px]"></i> {{ movie.imdb_rating }}</span>
+                        <a href="/movie/{{ movie.id }}" class="text-purple-400 hover:text-purple-300 font-semibold flex items-center gap-1">
+                            Buy for ₹{{ movie.price }} <i class="fa-solid fa-cart-shopping text-[10px]"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- UPCOMING RELEASES SPOTLIGHT -->
+<section class="max-w-7xl mx-auto px-6 mb-12">
+    <div class="flex justify-between items-end mb-6">
+        <div>
+            <span class="text-purple-400 font-semibold text-sm uppercase tracking-wider">Coming Soon</span>
+            <h2 class="text-2xl md:text-3xl font-black text-white">Upcoming Releases</h2>
+        </div>
+        <a href="/upcoming" class="text-sm font-bold text-purple-400 hover:text-purple-300 flex items-center gap-1 transition">
+            See Trailers <i class="fa-solid fa-chevron-right text-xs"></i>
+        </a>
+    </div>
+
+    {% if upcoming %}
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+        {% for movie in upcoming %}
+        <div class="glass-panel overflow-hidden group hover:border-purple-500/30 duration-300 transition flex flex-col justify-between h-full">
+            <div class="relative overflow-hidden aspect-[2/3] bg-zinc-950">
+                <img src="{{ movie.poster_url or 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?auto=format&fit=crop&w=400&q=80' }}" alt="{{ movie.title }}" class="w-full h-full object-cover group-hover:scale-105 duration-300 transition">
+                <div class="absolute bottom-2 left-2 bg-black/80 text-[10px] text-purple-400 font-bold px-2 py-0.5 rounded border border-purple-500/20">
+                    Release: {{ movie.release_date }}
+                </div>
+            </div>
+            <div class="p-4 space-y-2 flex-grow flex flex-col justify-between">
+                <div>
+                    <span class="text-[9px] uppercase text-zinc-500 font-bold block">{{ movie.genre }}</span>
+                    <h3 class="font-bold text-white group-hover:text-purple-400 transition truncate text-sm">
+                        <a href="/upcoming">{{ movie.title }}</a>
+                    </h3>
+                </div>
+                <div class="pt-2 border-t border-white/5">
+                    <a href="/upcoming" class="w-full bg-zinc-900 hover:bg-purple-600 text-zinc-300 hover:text-white border border-white/5 text-[10px] font-bold py-1.5 rounded flex items-center justify-center gap-1 transition">
+                        <i class="fa-solid fa-play"></i> Watch Trailer
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-zinc-500 text-sm">No upcoming releases listed yet.</p>
+    {% endif %}
+</section>
+
+<!-- PREMIUM VIP MEMBERSHIP PLANS -->
+<section class="max-w-7xl mx-auto px-6 mb-12">
+    <div class="text-center max-w-2xl mx-auto mb-10 space-y-3">
+        <span class="bg-purple-600/20 text-purple-400 border border-purple-500/25 px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest inline-block">{{ settings.site_name }} VIP</span>
+        <h2 class="text-3xl font-black text-white tracking-tight">VIP Membership Plans</h2>
+        <p class="text-zinc-400 text-sm">Join {{ settings.site_name }} Premium to get unlimited 4K movie downloads, watch exclusive web series, and stream FLAC audio without any ads.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+        {% for plan in plans %}
+        <div class="glass-panel relative flex flex-col justify-between p-6 rounded-2xl border-white/5 hover:border-purple-500/30 transition duration-300 {% if plan.duration_months == 3 or 'Premium' in plan.name %}border-purple-500/40 bg-gradient-to-b from-purple-950/10 to-transparent shadow-xl shadow-purple-600/5{% endif %}">
+            
+            {% if plan.duration_months == 3 or 'Premium' in plan.name %}
+            <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black text-[9px] uppercase px-3 py-0.5 rounded-full border border-purple-400/20 tracking-wider">
+                Best Value
+            </div>
+            {% endif %}
+
+            <div class="space-y-4">
+                <div>
+                    <h3 class="text-lg font-extrabold text-white tracking-tight">{{ plan.name }}</h3>
+                    <p class="text-[10px] text-zinc-500 mt-0.5">Duration: {{ plan.duration_months }} Month{{ 's' if plan.duration_months > 1 else '' }}</p>
+                </div>
+
+                <div class="flex items-baseline gap-1">
+                    <span class="text-3xl font-black text-white">₹{{ plan.price | int }}</span>
+                    <span class="text-zinc-500 text-xs">/ total</span>
+                </div>
+
+                <p class="text-xs text-zinc-400 leading-relaxed">{{ plan.description }}</p>
+
+                <ul class="space-y-2 pt-4 border-t border-white/5 text-[11px] text-zinc-300">
+                    <li class="flex items-center gap-2">
+                        <i class="fa-solid fa-circle-check text-purple-400"></i> Unlimited Movie Downloads
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <i class="fa-solid fa-circle-check text-purple-400"></i> Full HD & 4K Resolution
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <i class="fa-solid fa-circle-check text-purple-400"></i> Web Series Access
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <i class="fa-solid fa-circle-check text-purple-400"></i> 320kbps & FLAC Music Audio
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <i class="fa-solid fa-circle-check text-purple-400"></i> Ad-free Experience
+                    </li>
+                </ul>
+            </div>
+
+            <div class="mt-6">
+                {% if user_subscribed %}
+                <button class="w-full bg-emerald-600/25 border border-emerald-500/20 text-emerald-400 font-extrabold py-2.5 rounded-xl text-xs uppercase cursor-default" disabled>
+                    VIP Membership Active
+                </button>
+                {% else %}
+                <a href="/checkout/plan/{{ plan.id }}" class="w-full text-center font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider block transition duration-200 {% if plan.duration_months == 3 or 'Premium' in plan.name %}bg-purple-600 hover:bg-purple-500 text-white shadow-lg shadow-purple-600/20{% else %}bg-zinc-900 hover:bg-zinc-800 text-white border border-white/5{% endif %}">
+                    Purchase Plan Pass
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Hero Slider Carousel logic
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.carousel-slide');
+    const dots = document.querySelectorAll('.carousel-dot');
+
+    function goToSlide(n) {
+        if (!slides.length) return;
+        slides[currentSlide].classList.remove('opacity-100');
+        slides[currentSlide].classList.add('opacity-0', 'pointer-events-none');
+        if (dots.length) {
+            dots[currentSlide].classList.remove('bg-purple-500', 'w-6');
+            dots[currentSlide].classList.add('bg-zinc-600');
+        }
+
+        currentSlide = (n + slides.length) % slides.length;
+
+        slides[currentSlide].classList.add('opacity-100');
+        slides[currentSlide].classList.remove('opacity-0', 'pointer-events-none');
+        if (dots.length) {
+            dots[currentSlide].classList.add('bg-purple-500', 'w-6');
+            dots[currentSlide].classList.remove('bg-zinc-600');
+        }
+    }
+
+    function nextSlide() {
+        goToSlide(currentSlide + 1);
+    }
+
+    if (slides.length > 1) {
+        setInterval(nextSlide, 7000); // 7 sec rotation
+    }
+</script>
+{% endblock %}
